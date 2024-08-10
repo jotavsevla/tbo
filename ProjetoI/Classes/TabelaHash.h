@@ -6,20 +6,30 @@
 #define TBO_2024_01_TABELAHASH_H
 #include "Filme.h"
 #include "Cinema.h"
-
-class TabelaHashFilmes{
+#define HASH_MAX 90000
+class HashFilmes{
 private:
     string chave;
-    int qntAtualItens;
+    int qntAtualItens, lastViewed;
     vector<int> codeIdFilmes;
 public:
-    TabelaHashFilmes(string chave): chave(chave){}
-    int procuraNaTabelaHash(int codeId){
-        int atual = codeIdFilmes[0];
-        while(atual < codeId)
-            atual++;
-        return atual == codeId ? codeId : -1;
+    HashFilmes(string chave, int codeId) {
+        this->chave = chave;
+        codeIdFilmes.reserve(HASH_MAX);
+        codeIdFilmes.push_back(codeId);
+        qntAtualItens = 0;
+        lastViewed = 0;
     }
+    bool insereNaHash(int codeId){
+        codeIdFilmes.push_back(codeId);
+        qntAtualItens++;
+        return true;
+    }
+    int procuraNaHash(int codeId){
+        while(codeIdFilmes[lastViewed] < codeId && lastViewed < qntAtualItens) lastViewed++;
+        return codeIdFilmes[lastViewed] == codeId ? codeId : -1;
+    }
+    void setLastViewed(){this->lastViewed = 0;}
     string getChave(){return this->chave;}
 };
 
