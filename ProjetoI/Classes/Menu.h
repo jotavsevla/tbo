@@ -1,16 +1,31 @@
-//
-// Created by João on 17/07/24.
-//
-#include "Arquivo.h"
-#ifndef TBO_2024_01_MENU_H
-#define TBO_2024_01_MENU_H
+//#include <iostream>
+//#include <fstream>
+//#include <sstream>
+//#include <string>
+//#include <vector>
+
 using namespace std;
-class Menu{
+
+class Menu {
+
+private:
+    int escolha;
+
 public:
-    string operadorExtenso;
-    Menu();
+    void menuPrincipal(){
+        cout << "### FILTROS ###";
+        cout << endl << endl;
+        cout << "1 - Filmes" << endl;
+        cout << "2 - Cinemas" << endl << endl;
+        cout << "Escolha: ";
+        cin >> this->escolha;
+
+        //if(this->escolha == 1) menuFilme();
+        //else if(this->escolha) menuCinema();
+        //else menuPrincipal();
+    }
 
 
+
+    //return 0;
 };
-
-#endif //TBO_2024_01_MENU_H

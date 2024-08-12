@@ -48,6 +48,9 @@ int hashFilme(string t_const) {
     index = (index - INICIAL) / 2;  // Calcula o índice sequencial conforme a fórmula
     return index;
 }
+void setCodeId(int codeId){
+    this->codeId = codeId;
+}
 };
 
 

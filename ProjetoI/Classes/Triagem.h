@@ -6,15 +6,14 @@
 #define TBO_2024_01_TRIAGEM_H
 #include "TabelaHash.h"
 #include "RedBlackTree.h"
-#include "Busca.h"
+
 
 class Triagem {
-private:
+public:
     vector<HashFilmes> typeList;
     vector<HashFilmes> genresList;
     RedBlackTree startYearTree;
-
-public:
+    enum tipoEstado{nao_existe = -1};
     Triagem(){
         typeList.reserve(60);
         genresList.reserve(90);
@@ -34,7 +33,7 @@ public:
         return i;
     }
     void insereNaHashType(string type, int codeId){
-        if (existeHashType(type) == -1) {
+        if (existeHashType(type) == nao_existe) {
             HashFilmes anotherType(type);
             typeList.push_back(anotherType);
         }
@@ -42,7 +41,7 @@ public:
         typeList[indexHash].insereNaHash(codeId);
     }
     void insereNaHashGenres(string genres, int codeId){
-        if(existeHashGenres(genres)==-1){
+        if(existeHashGenres(genres)==nao_existe){
             HashFilmes anotherGenre(genres);
             genresList.push_back(anotherGenre);
         }
@@ -52,9 +51,7 @@ public:
     void insereStartYear(int startYear, int codeId) {
         startYearTree.insert(startYear, codeId);
     }
-    vector<int> buscaFilmesPorAno(Busca& busca, int ano) {
-        return busca.buscaPorAno(startYearTree, ano);
-    }
+
 };
 
 

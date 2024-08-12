@@ -24,6 +24,7 @@ public:
         qntAtualItens++;
         return true;
     }
+    vector<int> getCodeIdFilmes(){return this->codeIdFilmes;}
     int procuraNaHash(int codeId){
         while(codeIdFilmes[lastViewed] < codeId && lastViewed < qntAtualItens) lastViewed++;
         return codeIdFilmes[lastViewed] == codeId ? codeId : -1;

@@ -10,6 +10,7 @@
 #include "sstream"
 #include "fstream"
 #include "chrono"
+#include "math.h"
 #define MAX 638833 // ultimo valor que a hashFilme() é capaz de gerar
 using namespace std;
 
@@ -56,7 +57,14 @@ public:
                 vector<string> genresVec; // Clear genresVec for each iteration
                 stringstream genresStream(genres); // Create genresStream after genres is populated
                 string genre;
-                Filme atual(t_const, titleType, primaryTitle, originalTitle, adult, startY, endY, runTime, genres);
+                Filme atual(t_const, titleType, primaryTitle, originalTitle,
+                            adult, startY, endY, runTime, genres);
+                int size = filmes.size();
+
+                if(!filmes.empty() && atual.getCodeId() != filmes.back().getCodeId() + 1 )
+                    atual.setCodeId(filmes.back().getCodeId() + 1);
+
+
                 triagemFilmes.insereNaHashType(titleType, atual.getCodeId());
                 while (getline(genresStream, genre, ',')) {
                     genresVec.push_back(genre);
@@ -65,13 +73,13 @@ public:
                 filmes.push_back(atual);
 
             } catch (const out_of_range& e) {
-                std::cerr << "Erro: " << e.what() << std::endl;
+                cerr << "Erro: " << e.what() << std::endl;
                 return 1;
             } catch (const invalid_argument& e) {
-                std::cerr << "Erro de conversão inválida: " << e.what() << std::endl;
+                cerr << "Erro de conversão inválida: " << e.what() << std::endl;
                 return 2;
             } catch (const runtime_error& e) {
-                std::cerr << "Erro: " << e.what() << std::endl;
+                cerr << "Erro: " << e.what() << std::endl;
                 return 3;
             }
         }
