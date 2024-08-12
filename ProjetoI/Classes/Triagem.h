@@ -5,25 +5,19 @@
 #ifndef TBO_2024_01_TRIAGEM_H
 #define TBO_2024_01_TRIAGEM_H
 #include "TabelaHash.h"
-#define MAXTYPE
+#include "RedBlackTree.h"
+#include "Busca.h"
+
 class Triagem {
 private:
     vector<HashFilmes> typeList;
     vector<HashFilmes> genresList;
-    struct Node {
-        int startYear;
-        vector<int> codeIds;
-        Node* left;
-        Node* right;
-    };
-
-    Node* root;
+    RedBlackTree startYearTree;
 
 public:
     Triagem(){
         typeList.reserve(60);
         genresList.reserve(90);
-        root = nullptr;
     }
     int existeHashType(string chave){
         int i = 0;
@@ -56,30 +50,10 @@ public:
         genresList[indexHash].insereNaHash(codeId);
     }
     void insereStartYear(int startYear, int codeId) {
-        Node* newNode = new Node();
-        newNode->startYear = startYear;
-        newNode->codeIds.push_back(codeId);
-
-        if (root == nullptr) {
-            root = newNode;
-        } else {
-            Node *current = root;
-            while (true) {
-                if (startYear < current->startYear) {
-                    if (current->left == nullptr) {
-                        current->left = newNode;
-                        break;
-                    }
-                    current = current->left;
-                } else {
-                    if (current->right == nullptr) {
-                        current->right = newNode;
-                        break;
-                    }
-                    current = current->right;
-                }
-            }
-        }
+        startYearTree.insert(startYear, codeId);
+    }
+    vector<int> buscaFilmesPorAno(Busca& busca, int ano) {
+        return busca.buscaPorAno(startYearTree, ano);
     }
 };
 
