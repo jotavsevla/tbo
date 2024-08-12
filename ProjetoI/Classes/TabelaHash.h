@@ -13,10 +13,9 @@ private:
     int qntAtualItens, lastViewed;
     vector<int> codeIdFilmes;
 public:
-    HashFilmes(string chave, int codeId) {
+    HashFilmes(string chave) {
         this->chave = chave;
         codeIdFilmes.reserve(HASH_MAX);
-        codeIdFilmes.push_back(codeId);
         qntAtualItens = 0;
         lastViewed = 0;
     }
@@ -31,6 +30,7 @@ public:
     }
     void setLastViewed(){this->lastViewed = 0;}
     string getChave(){return this->chave;}
+
 };
 
 

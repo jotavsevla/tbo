@@ -34,42 +34,54 @@ public:
         while (getline(file, linha)) {
             try {
                 stringstream ss(linha);
-                if(!getline(ss, t_const, '\t')) continue;
-                if (!getline(ss, titleType, '\t')) continue;
+                getline(ss, t_const, '\t');
+                getline(ss, titleType, '\t');
                 if(titleType.empty())
-                    if(!getline(ss, titleType, '\t')) continue;
-                if (!getline(ss, primaryTitle, '\t')) continue;
-                if (!getline(ss, originalTitle, '\t')) continue;
-                if (!getline(ss, isAdult, '\t')) continue;
-                if (!getline(ss, startYear, '\t')) continue;
-                if (!getline(ss, endYear, '\t')) continue;
-                if (!getline(ss, runtimeMinutes, '\t')) continue;
-                if (!getline(ss, genres, '\t')) continue;
+                    getline(ss, titleType, '\t');
+
+                getline(ss, primaryTitle, '\t');
+                getline(ss, originalTitle, '\t');
+                getline(ss, isAdult, '\t');
+                getline(ss, startYear, '\t');
+                getline(ss, endYear, '\t');
+                getline(ss, runtimeMinutes, '\t');
+                getline(ss, genres, '\n');
 
                 int startY = (startYear != "\\N") ? stoi(startYear) : -1;
                 int endY = (endYear != "\\N") ? stoi(endYear) : -1;
                 int runTime = (runtimeMinutes != "\\N") ? stoi(runtimeMinutes) : -1;
                 bool adult = (isAdult == "1");
                 cout << t_const << titleType<< primaryTitle<< originalTitle<< adult<<startY<<endY<<runTime<<genres;
+
                 vector<string> genresVec; // Clear genresVec for each iteration
                 stringstream genresStream(genres); // Create genresStream after genres is populated
                 string genre;
-                while (getline(genresStream, genre, ','))
+                Filme atual(t_const, titleType, primaryTitle, originalTitle, adult, startY, endY, runTime, genres);
+                triagemFilmes.insereNaHashType(titleType, atual.getCodeId());
+                while (getline(genresStream, genre, ',')) {
                     genresVec.push_back(genre);
-                Filme atual(t_const, titleType, primaryTitle, originalTitle, adult, startY, endY, runTime, genresVec);
+                    triagemFilmes.insereNaHashGenres(genre, atual.getCodeId());
+                }
                 filmes.push_back(atual);
 
-            } catch (const std::out_of_range& e) {
+            } catch (const out_of_range& e) {
                 std::cerr << "Erro: " << e.what() << std::endl;
-                return 1; // Ou qualquer outro valor de retorno apropriado
-            } catch (const std::invalid_argument& e) {
-                std::cerr << "Erro de conversão inválida: " << e.what() << std::endl;
                 return 1;
+            } catch (const invalid_argument& e) {
+                std::cerr << "Erro de conversão inválida: " << e.what() << std::endl;
+                return 2;
+            } catch (const runtime_error& e) {
+                std::cerr << "Erro: " << e.what() << std::endl;
+                return 3;
             }
         }
         file.close();
+        return 0;
     }
     Filme getFilmePorId(int codeId){ return filmes[codeId];}
     Cinema getCinemaPorId(int codeId){ return cinemas[codeId];}
 };
+
 #endif //TBO_2024_01_ARQUIVO_H
+
+

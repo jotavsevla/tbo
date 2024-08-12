@@ -15,27 +15,31 @@ using namespace std;
 
 class Filme {
 private:
-int codeId, startYear, endYear, runTimeMinutes, typeMask;
-string tipo, namePrimary, nameOriginal;
-vector<string> genres;
+int codeId, startYear, endYear, runTimeMinutes;
+string type, namePrimary, nameOriginal;
+string genres;
 bool itsAdult;
 
 public:
-Filme(string t_const, string tipo, string namePrimary,
-      string nameOriginal, bool itsAdult, int startYear,
-      int endYear, int runTimeMinutes, vector<string> genres)
-        : tipo(tipo), namePrimary(namePrimary),
-          nameOriginal(nameOriginal), itsAdult(itsAdult),
-          startYear(startYear), endYear(endYear),
-          runTimeMinutes(runTimeMinutes), genres(genres), codeId(hashFilme(t_const)){}
-int getCodeId() const { return codeId; }
-string getTipo() const { return tipo; }
-string getNamePrimary() const { return namePrimary; }
-string getNameOriginal() const { return nameOriginal; }
-bool isAdult() const { return itsAdult; }
-int getStartYear() const { return startYear; }
-int getEndYear() const { return endYear; }
-int getRunTimeMinutes() const { return runTimeMinutes; }
+Filme(string t_const,string type,string namePrimary,string nameOriginal,bool itsAdult,int startYear,int endYear,int runTimeMinutes,string genres){
+        this->type = type;
+        this->namePrimary = namePrimary;
+        this->nameOriginal = nameOriginal;
+        this->itsAdult = itsAdult;
+        this->startYear = startYear;
+        this->endYear = endYear;
+        this->runTimeMinutes = runTimeMinutes;
+        this->genres = genres;
+        this->codeId = hashFilme(t_const);
+}
+int getCodeId()  { return codeId; }
+string getType()  { return type; }
+string getNamePrimary()  { return namePrimary; }
+string getNameOriginal()  { return nameOriginal; }
+bool isAdult() { return itsAdult; }
+int getStartYear() { return startYear; }
+int getEndYear() { return endYear; }
+int getRunTimeMinutes() { return runTimeMinutes; }
 int hashFilme(string t_const) {
     // Supondo que o código de identidade do filme comece com "tt", vamos extrair o número após "tt"
     string numero_str = t_const.substr(2);  // Remove os dois primeiros caracteres "tt"
