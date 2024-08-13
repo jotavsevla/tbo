@@ -13,6 +13,7 @@ public:
     vector<HashFilmes> typeList;
     vector<HashFilmes> genresList;
     RedBlackTree startYearTree;
+    RedBlackTree runTimeTree;
     enum tipoEstado{nao_existe = -1};
     Triagem(){
         typeList.reserve(60);
@@ -48,9 +49,13 @@ public:
         int indexHash = existeHashGenres(genres);
         genresList[indexHash].insereNaHash(codeId);
     }
-    void insereStartYear(int startYear, int codeId) {
+    void insereNaStartYear(int startYear, int codeId) {
         startYearTree.insert(startYear, codeId);
     }
+    void insereNaRunTimeMinutes(int runTime, int codeId){
+        runTimeTree.insert(runTime, codeId);
+    }
+
 
 };
 

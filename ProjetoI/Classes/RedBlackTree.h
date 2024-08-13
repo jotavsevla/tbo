@@ -1,185 +1,208 @@
-//
-// Created by João on 12/08/24.
-//
-
 #ifndef TBO_2024_01_REDBLACKTREE_H
 #define TBO_2024_01_REDBLACKTREE_H
 
-
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 using namespace std;
+
 enum Color { RED, BLACK };
 
 class RedBlackNode {
 public:
     int startYear;
-    std::vector<int> codeIds;
+    vector<int> codeIds;
     Color color;
-    RedBlackNode *left, *right, *parent;
+    shared_ptr<RedBlackNode> left, right, parent;
 
     RedBlackNode(int year) : startYear(year), color(RED), left(nullptr), right(nullptr), parent(nullptr) {}
 
     void insertCodeId(int codeId) {
         codeIds.push_back(codeId);
-        sort(codeIds.begin(), codeIds.end());
     }
 };
 
 class RedBlackTree {
 private:
-    RedBlackNode* root;
+    shared_ptr<RedBlackNode> root;
 
-    // Utility functions for Red-Black Tree operations (rotate, fix violations, etc.)
-    void rotateLeft(RedBlackNode*& root, RedBlackNode*& pt) {
-        RedBlackNode* pt_right = pt->right;
-        pt->right = pt_right->left;
+    // Rotação à esquerda
+    void rotateLeft(shared_ptr<RedBlackNode>& node) {
+        shared_ptr<RedBlackNode> nodeRight = node->right;
+        node->right = nodeRight->left;
 
-        if (pt->right != nullptr)
-            pt->right->parent = pt;
+        if (node->right != nullptr)
+            node->right->parent = node;
 
-        pt_right->parent = pt->parent;
+        nodeRight->parent = node->parent;
 
-        if (pt->parent == nullptr)
-            root = pt_right;
-        else if (pt == pt->parent->left)
-            pt->parent->left = pt_right;
+        if (node->parent == nullptr)
+            root = nodeRight;
+        else if (node == node->parent->left)
+            node->parent->left = nodeRight;
         else
-            pt->parent->right = pt_right;
+            node->parent->right = nodeRight;
 
-        pt_right->left = pt;
-        pt->parent = pt_right;
+        nodeRight->left = node;
+        node->parent = nodeRight;
     }
 
-    void rotateRight(RedBlackNode*& root, RedBlackNode*& pt) {
-        RedBlackNode* pt_left = pt->left;
-        pt->left = pt_left->right;
+    // Rotação à direita
+    void rotateRight(shared_ptr<RedBlackNode>& node) {
+        shared_ptr<RedBlackNode> nodeLeft = node->left;
+        node->left = nodeLeft->right;
 
-        if (pt->left != nullptr)
-            pt->left->parent = pt;
+        if (node->left != nullptr)
+            node->left->parent = node;
 
-        pt_left->parent = pt->parent;
+        nodeLeft->parent = node->parent;
 
-        if (pt->parent == nullptr)
-            root = pt_left;
-        else if (pt == pt->parent->left)
-            pt->parent->left = pt_left;
+        if (node->parent == nullptr)
+            root = nodeLeft;
+        else if (node == node->parent->left)
+            node->parent->left = nodeLeft;
         else
-            pt->parent->right = pt_left;
+            node->parent->right = nodeLeft;
 
-        pt_left->right = pt;
-        pt->parent = pt_left;
+        nodeLeft->right = node;
+        node->parent = nodeLeft;
     }
 
-    void fixViolation(RedBlackNode*& root, RedBlackNode*& pt) {
-        RedBlackNode* parent_pt = nullptr;
-        RedBlackNode* grand_parent_pt = nullptr;
+    // Corrige violações da árvore rubro-negra
+    void fixViolation(shared_ptr<RedBlackNode> node) {
+        while (node != root && node->color == RED && node->parent != nullptr && node->parent->color == RED) {
+            shared_ptr<RedBlackNode> parentNode = node->parent;
+            shared_ptr<RedBlackNode> grandParentNode = parentNode->parent;
 
-        while ((pt != root) && (pt->color != BLACK) &&
-               (pt->parent->color == RED)) {
+            if (grandParentNode != nullptr) {
+                // Caso A: O pai do nó é o filho esquerdo do avô do nó
+                if (parentNode == grandParentNode->left) {
+                    shared_ptr<RedBlackNode> uncleNode = grandParentNode->right;
 
-            parent_pt = pt->parent;
-            grand_parent_pt = pt->parent->parent;
+                    // Caso 1: O tio do nó também é vermelho
+                    if (uncleNode != nullptr && uncleNode->color == RED) {
+                        grandParentNode->color = RED;
+                        parentNode->color = BLACK;
+                        uncleNode->color = BLACK;
+                        node = grandParentNode;
+                    } else {
+                        // Caso 2: O nó é o filho direito do seu pai
+                        if (node == parentNode->right) {
+                            rotateLeft(parentNode);
+                            node = parentNode;
+                            parentNode = node->parent;
+                            grandParentNode = parentNode->parent;
+                        }
 
-            // Caso A: O pai de pt é o filho esquerdo do avô de pt
-            if (parent_pt == grand_parent_pt->left) {
-
-                RedBlackNode* uncle_pt = grand_parent_pt->right;
-
-                /* Caso 1: O tio de pt também é vermelho */
-                if (uncle_pt != nullptr && uncle_pt->color == RED) {
-                    grand_parent_pt->color = RED;
-                    parent_pt->color = BLACK;
-                    uncle_pt->color = BLACK;
-                    pt = grand_parent_pt;
-                } else {
-                    /* Caso 2: pt é o filho direito do seu pai */
-                    if (pt == parent_pt->right) {
-                        rotateLeft(root, parent_pt);
-                        pt = parent_pt;
-                        parent_pt = pt->parent;
+                        // Caso 3: O nó é o filho esquerdo do seu pai
+                        if (grandParentNode != nullptr) {
+                            rotateRight(grandParentNode);
+                            swap(parentNode->color, grandParentNode->color);
+                            node = parentNode;
+                        }
                     }
-
-                    /* Caso 3: pt é o filho esquerdo do seu pai */
-                    rotateRight(root, grand_parent_pt);
-                    swap(parent_pt->color, grand_parent_pt->color);
-                    pt = parent_pt;
-                }
-            }
-
-                /* Caso B: O pai de pt é o filho direito do avô de pt */
-            else {
-                RedBlackNode* uncle_pt = grand_parent_pt->left;
-
-                /* Caso 1: O tio de pt também é vermelho */
-                if (uncle_pt != nullptr && uncle_pt->color == RED) {
-                    grand_parent_pt->color = RED;
-                    parent_pt->color = BLACK;
-                    uncle_pt->color = BLACK;
-                    pt = grand_parent_pt;
                 } else {
-                    /* Caso 2: pt é o filho esquerdo do seu pai */
-                    if (pt == parent_pt->left) {
-                        rotateRight(root, parent_pt);
-                        pt = parent_pt;
-                        parent_pt = pt->parent;
-                    }
+                    // Caso B: O pai do nó é o filho direito do avô do nó
+                    shared_ptr<RedBlackNode> uncleNode = grandParentNode->left;
 
-                    /* Caso 3: pt é o filho direito do seu pai */
-                    rotateLeft(root, grand_parent_pt);
-                    std::swap(parent_pt->color, grand_parent_pt->color);
-                    pt = parent_pt;
+                    // Caso 1: O tio do nó também é vermelho
+                    if (uncleNode != nullptr && uncleNode->color == RED) {
+                        grandParentNode->color = RED;
+                        parentNode->color = BLACK;
+                        uncleNode->color = BLACK;
+                        node = grandParentNode;
+                    } else {
+                        // Caso 2: O nó é o filho esquerdo do seu pai
+                        if (node == parentNode->left) {
+                            rotateRight(parentNode);
+                            node = parentNode;
+                            parentNode = node->parent;
+                            grandParentNode = parentNode->parent;
+                        }
+
+                        // Caso 3: O nó é o filho direito do seu pai
+                        if (grandParentNode != nullptr) {
+                            rotateLeft(grandParentNode);
+                            swap(parentNode->color, grandParentNode->color);
+                            node = parentNode;
+                        }
+                    }
                 }
+            } else {
+                // Se o avô do nó atual é nullptr, apenas pintar o pai de preto e sair do loop
+                parentNode->color = BLACK;
+                node = parentNode;
+                break;
             }
         }
 
-        root->color = BLACK;
+        if (root != nullptr) root->color = BLACK;
+
     }
 
-    RedBlackNode* insertBST(RedBlackNode* root, RedBlackNode* pt) {
-        if (root == nullptr)
-            return pt;
+    // Função auxiliar para inserção BST
 
-        if (pt->startYear < root->startYear) {
-            root->left = insertBST(root->left, pt);
-            root->left->parent = root;
-        } else if (pt->startYear > root->startYear) {
-            root->right = insertBST(root->right, pt);
-            root->right->parent = root;
-        } else {
-            root->insertCodeId(pt->codeIds[0]);
-            return root;
-        }
+shared_ptr<RedBlackNode> insertBST(shared_ptr<RedBlackNode> root, shared_ptr<RedBlackNode> newNode) {
+    if (root == nullptr)
+        return newNode;
 
+    if (newNode->startYear < root->startYear) {
+        root->left = insertBST(root->left, newNode);
+        root->left->parent = root;
+    } else if (newNode->startYear > root->startYear) {
+        root->right = insertBST(root->right, newNode);
+        root->right->parent = root;
+    } else {
+        root->insertCodeId(newNode->codeIds[0]);
         return root;
     }
+
+    return root;
+}
 
 public:
     RedBlackTree() : root(nullptr) {}
 
-    void insert(int startYear, int codeId) {
-        RedBlackNode* pt = new RedBlackNode(startYear);
-        pt->insertCodeId(codeId);
-        root = insertBST(root, pt);
-        fixViolation(root, pt);
+    ~RedBlackTree() {
+        // A limpeza da árvore é automática com shared_ptr
     }
 
-    RedBlackNode* search(int startYear) const {
-        RedBlackNode* current = root;
-        while (current != nullptr) {
-            if (startYear < current->startYear) {
-                current = current->left;
-            } else if (startYear > current->startYear) {
-                current = current->right;
+    // Insere um novo código ID para um ano específico na árvore
+    void insert(int chave, int codeId) {
+
+        if (root == nullptr) {
+            auto newNode = make_shared<RedBlackNode>(chave);
+            root = newNode;
+            newNode->insertCodeId(codeId);
+        } else {
+            auto existingNode = search(chave);
+            if (existingNode != nullptr)
+                existingNode->insertCodeId(codeId);
+            else {
+                auto newNode = make_shared<RedBlackNode>(chave);
+                newNode->insertCodeId(codeId);
+                root = insertBST(root, newNode);
+                fixViolation(newNode);
+            }
+        }
+
+    }
+
+    // Busca um nó pelo ano de início
+    shared_ptr<RedBlackNode> search(int startYear) const {
+        auto currentNode = root;
+        while (currentNode != nullptr) {
+            if (startYear < currentNode->startYear) {
+                currentNode = currentNode->left;
+            } else if (startYear > currentNode->startYear) {
+                currentNode = currentNode->right;
             } else {
-                return current;
+                return currentNode;
             }
         }
         return nullptr;
     }
 };
-
-
 
 #endif //TBO_2024_01_REDBLACKTREE_H

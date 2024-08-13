@@ -11,7 +11,7 @@
 #include "fstream"
 #include "chrono"
 #include "math.h"
-#define MAX 638833 // ultimo valor que a hashFilme() é capaz de gerar
+#define MAX 638834 // ultimo valor que a hashFilme() é capaz de gerar
 using namespace std;
 
 class Arquivo {
@@ -59,17 +59,22 @@ public:
                 string genre;
                 Filme atual(t_const, titleType, primaryTitle, originalTitle,
                             adult, startY, endY, runTime, genres);
-                int size = filmes.size();
 
-                if(!filmes.empty() && atual.getCodeId() != filmes.back().getCodeId() + 1 )
+                if (!filmes.empty() && atual.getCodeId() != filmes.back().getCodeId() + 1 )
                     atual.setCodeId(filmes.back().getCodeId() + 1);
 
+                if (startY != -1)
+                    triagemFilmes.insereNaStartYear(startY, atual.getCodeId());
 
-                triagemFilmes.insereNaHashType(titleType, atual.getCodeId());
+                if (runTime != -1)
+                    triagemFilmes.insereNaRunTimeMinutes(runTime, atual.getCodeId());
+
                 while (getline(genresStream, genre, ',')) {
                     genresVec.push_back(genre);
                     triagemFilmes.insereNaHashGenres(genre, atual.getCodeId());
                 }
+                triagemFilmes.insereNaHashType(titleType, atual.getCodeId());
+
                 filmes.push_back(atual);
 
             } catch (const out_of_range& e) {

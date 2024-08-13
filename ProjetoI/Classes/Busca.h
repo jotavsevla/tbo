@@ -10,7 +10,7 @@ class Busca : public Triagem  {
 
 public:
     Busca (){}
-    
+
     vector<int> buscaPorHashType(string chave){
         int indexChave = existeHashType(chave);
         if (indexChave == nao_existe) vector<int>();
@@ -21,8 +21,8 @@ public:
         if (indexChave == nao_existe) vector<int>();
         return genresList[indexChave].getCodeIdFilmes();
     }
-// consideramos que os valores contidos em ambos os vetores estão em ordem crescente
-    vector<int> findCommomCodeId(vector<int>& lista_um, vector<int>& lista_dois){
+    // consideramos que os valores contidos em ambos os vetores estão em ordem crescente
+    vector<int> buscaPorCodeIdsCommon(vector<int>& lista_um, vector<int>& lista_dois){
         vector<int>commonElements;
         set_intersection(lista_um.begin(), lista_um.end(),lista_dois.begin(), lista_dois.end(),
                          back_inserter(commonElements));
@@ -35,8 +35,13 @@ public:
         else
             return vector<int>();
     }
-
-
+    vector<int> buscaFilmesPorTempo(RedBlackTree runTimeTree, int runTimeMinutes){
+        RedBlackNode* node = runTimeTree.search(runTimeMinutes);
+        if (node != nullptr)
+            return node->codeIds;
+        else
+            return vector<int>();
+    }
 
 };
 
