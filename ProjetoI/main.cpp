@@ -6,8 +6,9 @@ int main() {
     Arquivo filmes(ARQUIVOFILMES);
     filmes.lerArquivo();
     Menu menu;
-    menu.menuPrincipal();
-    menu.buscaCombinada();
+    vector<int> codeIds = menu.menuPrincipal();
+
+    for (int i = 0; i < codeIds.size(); i++) filmes.getFilmePorId(codeIds[i]);
 
 
     return 0;

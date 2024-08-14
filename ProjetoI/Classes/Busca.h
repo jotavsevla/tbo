@@ -5,30 +5,37 @@
 #ifndef TBO_2024_01_BUSCA_H
 #define TBO_2024_01_BUSCA_H
 #include "Triagem.h"
+#include <utility>
 
 class Busca : public Triagem  {
 
 public:
     Busca (){}
-    vector<int> buscaCombinada(int startYear, int endYear, int runTimeMinutes, vector<string> types, vector<string> genres, bool intervalo) {
+    vector<int> buscaCombinada(int startYear, int endYear, pair<int, int> runTimeMinutes, vector<string> types, vector<string> genres, bool intervaloAno, bool intervaloTempo) {
         vector<int> results;
 
-        if (startYear > 0) {
-            vector<int> filmesPorAno = buscaFilmesPorAno(startYear);
-            results = filmesPorAno;
-        }
-
-        // Filtragem por intervalo de anos
-        if (intervalo && startYear > 0 && endYear > 0) {
+        if (intervaloAno && startYear > 0 && endYear > 0) {
             for (int ano = startYear; ano <= endYear; ++ano) {
                 vector<int> filmesPorAno = buscaFilmesPorAno(ano);
                 results = buscaPorCodeIdsCommon(results, filmesPorAno);
             }
         }
+        if (startYear > 0 && !intervaloAno) {
+            vector<int> filmesPorAno = buscaFilmesPorAno(startYear);
+            results = filmesPorAno;
+        }
 
-        // Filtragem por duração
-        vector<int> filmesPorRuntime = buscaFilmesPorTempo(runTimeMinutes);
-        results = buscaPorCodeIdsCommon(results, filmesPorRuntime);
+        // Filtragem por intervalo de anos
+        if (intervaloTempo && runTimeMinutes.first > 0) {
+            int maxRuntime = runTimeMinutes.second; // valor máximo de duração (exemplo)
+            for (int tempo = runTimeMinutes.first; tempo <= maxRuntime; ++tempo) {
+                vector<int> filmesPorRuntime = buscaFilmesPorTempo(tempo);
+                results = buscaPorCodeIdsCommon(results, filmesPorRuntime);
+            }
+        } else {
+            vector<int> filmesPorRuntime = buscaFilmesPorTempo(runTimeMinutes.first);
+            results = buscaPorCodeIdsCommon(results, filmesPorRuntime);
+        }
 
         // Filtragem por tipo
         for (const auto& tipo : types) {

@@ -19,29 +19,33 @@ private:
     float valor = 0;
     int localizacaoUsuario[2] = {10000, 20000};
 
+
+
 public:
-    void menuPrincipal() {
+    vector<int> menuPrincipal() {
         cout << "\033[2J";
         cout << "### MENU PRINCPAL ###" << endl << endl;
         cout << "1 - Filmes" << endl;
         cout << "2 - Cinemas" << endl << endl;
         cout << "Escolha: ";
         cin >> this->escolha;
-
-        if(this->escolha == 1) menuFilmes();
+        vector<int>filmes;
+        if(this->escolha == 1) filmes = menuFilmes();
         else if(this->escolha == 2) menuCinemas();
-        else menuPrincipal();
+
+        return filmes;
     }
 
-    void menuFilmes() {
+    vector<int> menuFilmes() {
         // Vetores para armazenar múltiplos filtros aplicados
         vector<string> tipos;
         vector<string> generos;
         int duracaoMin = -1, duracaoMax = -1;
         int anoInicial = -1, anoFinal = -1;
-        bool intervalo = false;
 
         int escolhaFilme;
+
+        bool genres, types, intervaloAno, intervaloTempo, runTime;
 
         do {
             // Limpar tela e exibir opções
@@ -55,6 +59,7 @@ public:
             cout << "6. Pesquisar com filtros aplicados" << endl;
             cout << "Escolha uma opção: ";
             cin >> escolhaFilme;
+            pair<int,int> duracao;
 
             switch (escolhaFilme) {
                 case 1: {
@@ -68,57 +73,45 @@ public:
                     while (getline(ss, token, ',')) {
                         tipos.push_back(token); // Adicione cada token ao vetor
                     }
-                    break;
                 }
                 case 2: {
                     string genero;
                     cout << "Digite o(s) gênero(s) de filme (separados por vírgula): ";
-                    getline(cin, genero); // Use getline para ler a linha inteira
+                    getline(cin, genero);
 
-                    // Separe as strings por vírgula
                     stringstream ss(genero);
                     string token;
                     while (getline(ss, token, ',')) {
-                        generos.push_back(token); // Adicione cada token ao vetor
+                        generos.push_back(token);
                     }
-                    break;
                 }
                 case 3: {
                     // Solicitar duração mínima e máxima
                     cout << "Digite a duração mínima (em minutos): ";
-                    cin >> duracaoMin;
+                    cin >> duracao.first;
                     cout << "Digite a duração máxima (em minutos): ";
-                    cin >> duracaoMax;
-                    break;
+                    cin >> duracao.second;
                 }
                 case 4: {
                     // Solicitar ano inicial e final
-                    cout << "Digite o ano inicial: ";
+                    cout << "Digite o ano inicial do intervalo: ";
                     cin >> anoInicial;
-                    cout << "Digite o ano final: ";
+                    cout << "Digite o ano final do intervalo: ";
                     cin >> anoFinal;
-                    intervalo = true;
-                    break;
+                    anoFinal != 0 ? intervaloAno =  true : intervaloAno =  false;
                 }
                 case 5:
-                    // Voltar ao menu principal
-                    menuPrincipal();
-                    return;
-                case 6:
                     // Chamar busca combinada com os filtros aplicados
-                    Busca busca;  // Instância da classe Busca
                     vector<int> resultadoFinal;
 
-                    resultadoFinal = busca.buscaCombinada(anoInicial, anoFinal, duracaoMin, tipos, generos, intervalo);
+                    resultadoFinal = buscaCombinada(anoInicial, anoFinal, duracao, tipos, generos, intervaloAno, intervaloTempo);
 
                     // Exibir resultados
                     if (resultadoFinal.empty()) {
                         cout << "Nenhum filme encontrado com os filtros aplicados." << endl;
                     } else {
                         cout << "Filmes encontrados: " << endl;
-                        for (const auto& id : resultadoFinal) {
-                            cout << "Filme ID: " << id << endl;
-                        }
+                        return resultadoFinal;
                     }
                     break;
 
