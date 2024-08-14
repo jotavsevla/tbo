@@ -5,9 +5,9 @@
 int main() {
     Arquivo filmes(ARQUIVOFILMES);
     filmes.lerArquivo();
-
-    //Menu menu;
-    //menu.menuPrincipal;
+    Menu menu;
+    menu.menuPrincipal();
+    menu.buscaCombinada();
 
 
     return 0;

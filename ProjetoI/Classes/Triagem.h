@@ -13,6 +13,7 @@ public:
     vector<HashFilmes> typeList;
     vector<HashFilmes> genresList;
     RedBlackTree startYearTree;
+    RedBlackTree endYearTree;
     RedBlackTree runTimeTree;
     enum tipoEstado{nao_existe = -1};
     Triagem(){
@@ -52,10 +53,30 @@ public:
     void insereNaStartYear(int startYear, int codeId) {
         startYearTree.insert(startYear, codeId);
     }
+    void insereNaEndYear(int endYear, int codeId){
+        endYearTree.insert(endYear, codeId);
+    }
     void insereNaRunTimeMinutes(int runTime, int codeId){
         runTimeTree.insert(runTime, codeId);
     }
-
+    vector<int>buscaHashGenres(string chave){
+        return genresList[existeHashGenres(chave)].getCodeIdFilmes();
+    }
+    vector<int>buscaHashTypes(string chave){
+        return typeList[existeHashType(chave)].getCodeIdFilmes();
+    }
+    vector<int>buscaRubroSY(int chave){
+        shared_ptr<RedBlackNode> node = startYearTree.search(chave);
+        return node->codeIds;
+    }
+    vector<int>buscaRubroEY(int chave){
+        shared_ptr<RedBlackNode> node = endYearTree.search(chave);
+        return node->codeIds;
+    }
+    vector<int>buscaRubroRT(int chave){
+        shared_ptr<RedBlackNode> node = runTimeTree.search(chave);
+        return node->codeIds;
+    }
 
 };
 

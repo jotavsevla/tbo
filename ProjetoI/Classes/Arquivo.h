@@ -32,6 +32,7 @@ public:
         string linha;
         getline(file, linha); // Ignora a primeira linha (cabeçalho)
         string t_const, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres;
+        int i = 0;
         while (getline(file, linha)) {
             try {
                 stringstream ss(linha);
@@ -60,14 +61,20 @@ public:
                 Filme atual(t_const, titleType, primaryTitle, originalTitle,
                             adult, startY, endY, runTime, genres);
 
+
                 if (!filmes.empty() && atual.getCodeId() != filmes.back().getCodeId() + 1 )
                     atual.setCodeId(filmes.back().getCodeId() + 1);
 
+                i = atual.getCodeId();
+
                 if (startY != -1)
-                    triagemFilmes.insereNaStartYear(startY, atual.getCodeId());
+                    triagemFilmes.insereNaStartYear(startY, i);
+
+                if (endY != -1)
+                    triagemFilmes.insereNaEndYear(endY,i);
 
                 if (runTime != -1)
-                    triagemFilmes.insereNaRunTimeMinutes(runTime, atual.getCodeId());
+                    triagemFilmes.insereNaRunTimeMinutes(runTime, i);
 
                 while (getline(genresStream, genre, ',')) {
                     genresVec.push_back(genre);
