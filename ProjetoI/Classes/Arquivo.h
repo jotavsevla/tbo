@@ -81,7 +81,6 @@ public:
                     triagemFilmes.insereNaHashGenres(genre, atual.getCodeId());
                 }
                 triagemFilmes.insereNaHashType(titleType, atual.getCodeId());
-
                 filmes.push_back(atual);
 
             } catch (const out_of_range& e) {
