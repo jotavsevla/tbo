@@ -43,7 +43,7 @@ public:
         int duracaoMin = -1, duracaoMax = -1;
         int anoInicial = -1, anoFinal = -1;
         int escolhaFilme;
-        pair <int,int> runTime;
+        pair <int,int> minutes;
         bool genres, types, intervaloAno;
 
 
@@ -85,9 +85,9 @@ public:
                     // entrada duração mínima e máxima (considero sempre q o usuario quer um
                     // filme com tempo máximo)
                     cout << "Digite o tempo minimo que voce deseja..." << endl;
-                    cin >> runTime.first;
+                    cin >> minutes.first;
                     cout << "Agora, digite o tempo maximo que voce deseja..." << endl;
-                    cin >> runTime.second;
+                    cin >> minutes.second;
                 }
                 case 4: {
                     int op;
@@ -116,10 +116,9 @@ public:
                 case 5:
                     // Chamar busca combinada com os filtros aplicados
                     vector<int> resultadoFinal;
-                    resultadoFinal = arquivoParaBusca.triagemFilmes.buscaCombinada(anoInicial, anoFinal, runTime,
-                                                    tipos, generos, intervaloAno, intervaloAno);
+                    resultadoFinal = arquivoParaBusca.triagemFilmes.buscaCombinada(anoInicial, anoFinal, minutes,
+                                                                                   tipos, generos, intervaloAno, intervaloAno);
 
-                    // Exibir resultados
                     if (resultadoFinal.empty()) {
                         cout << "Nenhum filme encontrado com os filtros aplicados." << endl;
                     } else {

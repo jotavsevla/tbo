@@ -82,15 +82,15 @@ public:
     vector<int> buscaCombinada(int startYear, int endYear, pair<int, int> runTimeMinutes, vector<string>& types,
                                vector<string>& genres, bool intervaloAno, bool intervaloTempo) {
         vector<int> results;
+        vector<int> temp, buffer;
 
         if (intervaloAno && startYear > 0 && endYear > 0) {
             int ano = startYear;
             vector<int> filmesPorAno = buscaFilmesPorAno(ano);
-            vector<int> temp;
 
             ++ano;
             while (ano <= endYear) {
-                vector<int> buffer = buscaFilmesPorAno(ano);
+                buffer = buscaFilmesPorAno(ano);
                 temp.clear();
                 merge(filmesPorAno.begin(), filmesPorAno.end(), buffer.begin(), buffer.end(),
                       back_inserter(temp));
@@ -107,10 +107,17 @@ public:
 
         // Filtragem por intervalo de anos
         if (intervaloTempo && runTimeMinutes.first > 0) {
-            for (int tempo = runTimeMinutes.first; tempo <= runTimeMinutes.second; ++tempo) {
-                vector<int> filmesPorRuntime = buscaFilmesPorTempo(tempo);
-                results = buscaPorCodeIdsCommon(results, filmesPorRuntime);
+            int tempo = runTimeMinutes.first;
+            vector<int> filmesPorRunTime = buscaFilmesPorTempo(tempo);
+            while (tempo <= runTimeMinutes.second) {
+                buffer = buscaFilmesPorTempo(tempo);
+                temp.clear();
+                merge(filmesPorRunTime.begin(), filmesPorRunTime.end(), buffer.begin(),
+                      buffer.end(), back_inserter(temp));
+                filmesPorRunTime = temp;
+                ++tempo;
             }
+            results = buscaPorCodeIdsCommon(results, filmesPorRunTime);
         }
 
         // Filtragem por tipo
