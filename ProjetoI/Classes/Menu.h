@@ -13,12 +13,12 @@ class Menu : Busca{
 private:
     int escolha;
     vector<string> tipos, generos;
-    int duracoes[2] = {0, 0};
-    int anos[2] = {0, 0};
+    //int duracoes[2] = {0, 0};
+    //int anos[2] = {0, 0};
 
-    int distancia = 0;
-    float valor = 0;
-    int localizacaoUsuario[2] = {10000, 20000};
+    // int distancia = 0;
+    // float valor = 0;
+    // vector<int> localizacaoUsuario;
     Arquivo arquivoParaBusca;
 
 
@@ -48,7 +48,6 @@ public:
 
 
         do {
-            // Limpar tela e exibir opções
             cout << "### FILMES ###" << endl << endl;
             cout << "1. Filtrar por Tipo" << endl;
             cout << "2. Filtrar por Gênero" << endl;
@@ -63,29 +62,28 @@ public:
                 case 1: {
                     string tipo;
                     cout << "Digite o(s) tipo(s) de filme (separados por vírgula): ";
-                    getline(cin, tipo); // Use getline para ler a linha inteira
-
+                    cin >> tipo;
                     // Separe as strings por vírgula
                     stringstream ss(tipo);
                     string token;
                     while (getline(ss, token, ',')) {
-                        tipos.push_back(token); // Adicione cada token ao vetor
+                        tipos.push_back(token); // Adiciona cada tipo ao vetor de tipos
                     }
                 }
                 case 2: {
-                    // entrada para generos
+                    // mesma coisa com os generos, aqui
                     string genero;
                     cout << "Digite o(s) gênero(s) de filme (separados por vírgula): ";
-                    getline(cin, genero);
+                    cin >> genero;
 
                     stringstream ss(genero);
                     string token;
                     while (getline(ss, token, ','))
                         generos.push_back(token);
-
                 }
                 case 3: {
-                    // entrada duração mínima e máxima
+                    // entrada duração mínima e máxima (considero sempre q o usuario quer um
+                    // filme com tempo máximo)
                     cout << "Digite o tempo minimo que voce deseja..." << endl;
                     cin >> runTime.first;
                     cout << "Agora, digite o tempo maximo que voce deseja..." << endl;
@@ -94,7 +92,7 @@ public:
                 case 4: {
                     int op;
                     cout << "Se deseja buscar filmes com um intervalo de tempo de lancamento especifico?" << endl;;
-                    cout << " Se sim digite 1, caso contrario, digite 2: ";
+                    cout << "Se sim digite 1, caso contrario, digite 2: ";
                     cin >> op;
 
                     switch (op) {
@@ -118,8 +116,7 @@ public:
                 case 5:
                     // Chamar busca combinada com os filtros aplicados
                     vector<int> resultadoFinal;
-
-                    resultadoFinal = buscaCombinada(anoInicial, anoFinal, runTime,
+                    resultadoFinal = arquivoParaBusca.triagemFilmes.buscaCombinada(anoInicial, anoFinal, runTime,
                                                     tipos, generos, intervaloAno, intervaloAno);
 
                     // Exibir resultados
@@ -127,7 +124,10 @@ public:
                         cout << "Nenhum filme encontrado com os filtros aplicados." << endl;
                     } else {
                         cout << "Filmes encontrados: " << endl;
-                        for(int codeId : resultadoFinal) {
+                        int limit = resultadoFinal.size();
+                        int codeId;
+                        for( int i = 0; i < limit; i++) {
+                            codeId = resultadoFinal[i];
                             Filme atual = arquivoParaBusca.getFilmePorId(codeId);
                             cout << atual.getCodeId()<< " " << atual.getNamePrimary() << " " << atual.getNameOriginal();
                             cout << " " << atual.getStartYear() << " " << atual.getEndYear() << " ";
@@ -141,39 +141,42 @@ public:
         } while (escolhaFilme != 5);  // Voltar ao menu principal com opção 5
     }
 
-void cinemas() {
-    int escolhaCinema;
+    void cinemas() {
+        int escolhaCinema;
+        pair<int, int> distancia;
+        int valor;
+        cout << "### CINEMAS ###" << endl << endl;
+        cout << "1 - Distancia ";
+        cout << ": " << distancia.first;
+        if(distancia.first != 0) {
+            cin>> distancia.first;
+            cin>> distancia.second;
+        }
+        cout << endl << "2 - Valor";
+        if(valor != 0) cout << ": " << valor;
 
-    cout << "### CINEMAS ###" << endl << endl;
-    cout << "1 - Distancia ";
-    if(this->distancia != 0) cout << ": " << this->distancia;
-    cout << endl << "2 - Valor";
-    if(this->valor != 0) cout << ": " << this->valor;
+        cout << endl << endl << "3 - Voltar" << endl;
+        cout << "0 - Pesquisar" << endl << endl;
+        cout << "Escolha: ";
+        cin >> escolhaCinema;
 
-    cout << endl << endl << "3 - Voltar" << endl;
-    cout << "0 - Pesquisar" << endl << endl;
-    cout << "Escolha: ";
-    cin >> escolhaCinema;
+        if(escolhaCinema == 1) {
+            int dMax;
+            cout << "Digite uma distancia maxima: ";
+            cin >> dMax;
+            cout << distancia.first << " " << distancia.second;
+        }
+        else if(escolhaCinema == 2) {
+            int v;
+            cout << "Digite um valor maximo: ";
+            cin >> v;
+            if(v == 0) valor = 0;
+            else valor = v;
+        }
+        else if(escolhaCinema == 3) principal();
 
-    if(escolhaCinema == 1) {
-        int d;
-        cout << "Digite uma distancia maxima: ";
-        cin >> d;
-        if(d == 0) distancia = 0;
-        else this->distancia = d;
-        cout << this->distancia;
+        cinemas();
     }
-    else if(escolhaCinema == 2) {
-        int v;
-        cout << "Digite um valor maximo: ";
-        cin >> v;
-        if(v == 0) this->valor = 0;
-        else this->valor = v;
-    }
-    else if(escolhaCinema == 3) principal();
-
-    cinemas();
-}
 
 };
 
