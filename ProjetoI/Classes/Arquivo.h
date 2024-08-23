@@ -19,19 +19,18 @@ public:
     vector<Filme> filmes;
     vector<Cinema> cinemas;
     string arquivo;
+    Triagem triagemFilmes;
 
     Arquivo(const string& nomeArquivo) : arquivo(nomeArquivo) {}
 
-    int lerArquivo() {
+    Arquivo* lerArquivo() {
         ifstream file(arquivo);
 
-        if (!file.is_open())
-            return 1;
-        Triagem triagemFilmes;
         filmes.reserve(MAX);
         string linha;
         getline(file, linha); // Ignora a primeira linha (cabeçalho)
         string t_const, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres;
+
         int i = 0;
         while (getline(file, linha)) {
             try {
@@ -40,7 +39,6 @@ public:
                 getline(ss, titleType, '\t');
                 if(titleType.empty())
                     getline(ss, titleType, '\t');
-
                 getline(ss, primaryTitle, '\t');
                 getline(ss, originalTitle, '\t');
                 getline(ss, isAdult, '\t');
@@ -58,14 +56,8 @@ public:
                 vector<string> genresVec; // Clear genresVec for each iteration
                 stringstream genresStream(genres); // Create genresStream after genres is populated
                 string genre;
-                Filme atual(t_const, titleType, primaryTitle, originalTitle,
+                Filme atual(i, titleType, primaryTitle, originalTitle,
                             adult, startY, endY, runTime, genres);
-
-
-                if (!filmes.empty() && atual.getCodeId() != filmes.back().getCodeId() + 1 )
-                    atual.setCodeId(filmes.back().getCodeId() + 1);
-
-                i = atual.getCodeId();
 
                 if (startY != -1)
                     triagemFilmes.insereNaStartYear(startY, i);
@@ -78,24 +70,27 @@ public:
 
                 while (getline(genresStream, genre, ',')) {
                     genresVec.push_back(genre);
-                    triagemFilmes.insereNaHashGenres(genre, atual.getCodeId());
+                    triagemFilmes.insereNaHashGenres(genre, i);
                 }
-                triagemFilmes.insereNaHashType(titleType, atual.getCodeId());
+
+                triagemFilmes.insereNaHashType(titleType, i);
                 filmes.push_back(atual);
+
+                ++i;
 
             } catch (const out_of_range& e) {
                 cerr << "Erro: " << e.what() << std::endl;
-                return 1;
+                return nullptr;
             } catch (const invalid_argument& e) {
                 cerr << "Erro de conversão inválida: " << e.what() << std::endl;
-                return 2;
+                return nullptr;
             } catch (const runtime_error& e) {
                 cerr << "Erro: " << e.what() << std::endl;
-                return 3;
+                return nullptr;
             }
         }
         file.close();
-        return 0;
+        return this;
     }
     Filme getFilmePorId(int codeId){ return filmes[codeId];}
     Cinema getCinemaPorId(int codeId){ return cinemas[codeId];}

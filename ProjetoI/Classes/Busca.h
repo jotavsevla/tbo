@@ -6,19 +6,32 @@
 #define TBO_2024_01_BUSCA_H
 #include "Triagem.h"
 #include <utility>
+#include <algorithm>
 
-class Busca : public Triagem  {
+class Busca : Triagem  {
 
 public:
     Busca (){}
-    vector<int> buscaCombinada(int startYear, int endYear, pair<int, int> runTimeMinutes, vector<string> types, vector<string> genres, bool intervaloAno, bool intervaloTempo) {
+    vector<int> buscaCombinada(int startYear, int endYear, pair<int, int> runTimeMinutes, vector<string>& types,
+                                vector<string>& genres, bool intervaloAno, bool intervaloTempo) {
         vector<int> results;
 
         if (intervaloAno && startYear > 0 && endYear > 0) {
-            for (int ano = startYear; ano <= endYear; ++ano) {
-                vector<int> filmesPorAno = buscaFilmesPorAno(ano);
-                results = buscaPorCodeIdsCommon(results, filmesPorAno);
+            int ano = startYear;
+            vector<int> filmesPorAno = buscaFilmesPorAno(ano);
+            vector<int> temp;
+
+            ++ano;
+            while (ano <= endYear) {
+                vector<int> buffer = buscaFilmesPorAno(ano);
+                temp.clear();
+                merge(filmesPorAno.begin(), filmesPorAno.end(), buffer.begin(), buffer.end(),
+                      back_inserter(temp));
+                filmesPorAno = temp;
+                ++ano;
             }
+
+            results = filmesPorAno;
         }
         if (startYear > 0 && !intervaloAno) {
             vector<int> filmesPorAno = buscaFilmesPorAno(startYear);
@@ -27,14 +40,10 @@ public:
 
         // Filtragem por intervalo de anos
         if (intervaloTempo && runTimeMinutes.first > 0) {
-            int maxRuntime = runTimeMinutes.second; // valor máximo de duração (exemplo)
-            for (int tempo = runTimeMinutes.first; tempo <= maxRuntime; ++tempo) {
+            for (int tempo = runTimeMinutes.first; tempo <= runTimeMinutes.second; ++tempo) {
                 vector<int> filmesPorRuntime = buscaFilmesPorTempo(tempo);
                 results = buscaPorCodeIdsCommon(results, filmesPorRuntime);
             }
-        } else {
-            vector<int> filmesPorRuntime = buscaFilmesPorTempo(runTimeMinutes.first);
-            results = buscaPorCodeIdsCommon(results, filmesPorRuntime);
         }
 
         // Filtragem por tipo
@@ -64,7 +73,8 @@ public:
     // consideramos que os valores contidos em ambos os vetores estão em ordem crescente
     vector<int> buscaPorCodeIdsCommon(vector<int>& lista_um, vector<int>& lista_dois){
         vector<int>commonElements;
-        set_intersection(lista_um.begin(), lista_um.end(),lista_dois.begin(), lista_dois.end(),
+        set_intersection(lista_um.begin(), lista_um.end(),
+                         lista_dois.begin(), lista_dois.end(),
                          back_inserter(commonElements));
         return commonElements;
     }

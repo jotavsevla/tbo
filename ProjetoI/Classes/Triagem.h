@@ -7,7 +7,6 @@
 #include "TabelaHash.h"
 #include "RedBlackTree.h"
 
-
 class Triagem {
 public:
     vector<HashFilmes> typeList;
@@ -77,8 +76,5 @@ public:
         shared_ptr<RedBlackNode> node = runTimeTree.search(chave);
         return node->codeIds;
     }
-
 };
-
-
 #endif //TBO_2024_01_TRIAGEM_H

@@ -1,6 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 #include "Busca.h"
+#include "Arquivo.h"
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -8,7 +9,7 @@
 using namespace std;
 
 
-class Menu : public Busca{
+class Menu : Busca{
 private:
     int escolha;
     vector<string> tipos, generos;
@@ -18,38 +19,36 @@ private:
     int distancia = 0;
     float valor = 0;
     int localizacaoUsuario[2] = {10000, 20000};
-
+    Arquivo arquivoParaBusca;
 
 
 public:
-    vector<int> menuPrincipal() {
-        cout << "\033[2J";
+    Menu(Arquivo& arquivo):arquivoParaBusca(arquivo){}
+    void principal() {
         cout << "### MENU PRINCPAL ###" << endl << endl;
         cout << "1 - Filmes" << endl;
         cout << "2 - Cinemas" << endl << endl;
         cout << "Escolha: ";
         cin >> this->escolha;
-        vector<int>filmes;
-        if(this->escolha == 1) filmes = menuFilmes();
-        else if(this->escolha == 2) menuCinemas();
 
-        return filmes;
+        if(this->escolha == 1) filmes();
+        else if(this->escolha == 2) cinemas();
+        else principal();
     }
 
-    vector<int> menuFilmes() {
+    void filmes() {
         // Vetores para armazenar múltiplos filtros aplicados
         vector<string> tipos;
         vector<string> generos;
         int duracaoMin = -1, duracaoMax = -1;
         int anoInicial = -1, anoFinal = -1;
-
         int escolhaFilme;
+        pair <int,int> runTime;
+        bool genres, types, intervaloAno;
 
-        bool genres, types, intervaloAno, intervaloTempo, runTime;
 
         do {
             // Limpar tela e exibir opções
-            cout << "\033[2J\033[H";  // Comando para limpar a tela
             cout << "### FILMES ###" << endl << endl;
             cout << "1. Filtrar por Tipo" << endl;
             cout << "2. Filtrar por Gênero" << endl;
@@ -59,7 +58,6 @@ public:
             cout << "6. Pesquisar com filtros aplicados" << endl;
             cout << "Escolha uma opção: ";
             cin >> escolhaFilme;
-            pair<int,int> duracao;
 
             switch (escolhaFilme) {
                 case 1: {
@@ -75,43 +73,67 @@ public:
                     }
                 }
                 case 2: {
+                    // entrada para generos
                     string genero;
                     cout << "Digite o(s) gênero(s) de filme (separados por vírgula): ";
                     getline(cin, genero);
 
                     stringstream ss(genero);
                     string token;
-                    while (getline(ss, token, ',')) {
+                    while (getline(ss, token, ','))
                         generos.push_back(token);
-                    }
+
                 }
                 case 3: {
-                    // Solicitar duração mínima e máxima
-                    cout << "Digite a duração mínima (em minutos): ";
-                    cin >> duracao.first;
-                    cout << "Digite a duração máxima (em minutos): ";
-                    cin >> duracao.second;
+                    // entrada duração mínima e máxima
+                    cout << "Digite o tempo minimo que voce deseja..." << endl;
+                    cin >> runTime.first;
+                    cout << "Agora, digite o tempo maximo que voce deseja..." << endl;
+                    cin >> runTime.second;
                 }
                 case 4: {
-                    // Solicitar ano inicial e final
-                    cout << "Digite o ano inicial do intervalo: ";
-                    cin >> anoInicial;
-                    cout << "Digite o ano final do intervalo: ";
-                    cin >> anoFinal;
-                    anoFinal != 0 ? intervaloAno =  true : intervaloAno =  false;
+                    int op;
+                    cout << "Se deseja buscar filmes com um intervalo de tempo de lancamento especifico?" << endl;;
+                    cout << " Se sim digite 1, caso contrario, digite 2: ";
+                    cin >> op;
+
+                    switch (op) {
+                        case 1: {
+                            intervaloAno =  true;
+                            cout << "Digite o ano inicial: " ;
+                            cin >> anoInicial;
+                            cout << endl << "Digite o ano final do intervalo: ";
+                            cin >> anoFinal;
+                            break;
+                        }
+                        case 2: {
+                            intervaloAno = false;
+                            cout << "Defina o ano de filmes que deseja filtrar:" << endl;
+                            cin >> anoInicial;
+                            break;
+                        }
+                        default: cout << "Numero invalido, repita." << endl;
+                    }
                 }
                 case 5:
                     // Chamar busca combinada com os filtros aplicados
                     vector<int> resultadoFinal;
 
-                    resultadoFinal = buscaCombinada(anoInicial, anoFinal, duracao, tipos, generos, intervaloAno, intervaloTempo);
+                    resultadoFinal = buscaCombinada(anoInicial, anoFinal, runTime,
+                                                    tipos, generos, intervaloAno, intervaloAno);
 
                     // Exibir resultados
                     if (resultadoFinal.empty()) {
                         cout << "Nenhum filme encontrado com os filtros aplicados." << endl;
                     } else {
                         cout << "Filmes encontrados: " << endl;
-                        return resultadoFinal;
+                        for(int codeId : resultadoFinal) {
+                            Filme atual = arquivoParaBusca.getFilmePorId(codeId);
+                            cout << atual.getCodeId()<< " " << atual.getNamePrimary() << " " << atual.getNameOriginal();
+                            cout << " " << atual.getStartYear() << " " << atual.getEndYear() << " ";
+                            cout << atual.getRunTimeMinutes() << " " << atual.getType() << " " << atual.getGenres();
+                            cout << endl;
+                        }
                     }
                     break;
 
@@ -119,9 +141,8 @@ public:
         } while (escolhaFilme != 5);  // Voltar ao menu principal com opção 5
     }
 
-void menuCinemas() {
+void cinemas() {
     int escolhaCinema;
-
 
     cout << "### CINEMAS ###" << endl << endl;
     cout << "1 - Distancia ";
@@ -149,9 +170,9 @@ void menuCinemas() {
         if(v == 0) this->valor = 0;
         else this->valor = v;
     }
-    else if(escolhaCinema == 3) menuPrincipal();
+    else if(escolhaCinema == 3) principal();
 
-    menuCinemas();
+    cinemas();
 }
 
 };
