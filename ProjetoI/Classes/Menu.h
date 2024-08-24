@@ -12,7 +12,6 @@ using namespace std;
 class Menu : Busca{
 private:
     int escolha;
-    vector<string> tipos, generos;
     //int duracoes[2] = {0, 0};
     //int anos[2] = {0, 0};
 
@@ -62,24 +61,28 @@ public:
                 case 1: {
                     string tipo;
                     cout << "Digite o(s) tipo(s) de filme (separados por vírgula): ";
-                    cin >> tipo;
+                    cin.ignore();
+                    getline(cin, tipo);
                     // Separe as strings por vírgula
                     stringstream ss(tipo);
                     string token;
                     while (getline(ss, token, ',')) {
-                        tipos.push_back(token); // Adiciona cada tipo ao vetor de tipos
+                        token.erase(remove_if(token.begin(), token.end(), ::isspace), token.end());
+                        tipos.push_back(token);
                     }
+                    // não há break pois desejo continuar para o proximo
                 }
                 case 2: {
                     // mesma coisa com os generos, aqui
                     string genero;
                     cout << "Digite o(s) gênero(s) de filme (separados por vírgula): ";
-                    cin >> genero;
-
+                    getline(cin, genero);
                     stringstream ss(genero);
                     string token;
-                    while (getline(ss, token, ','))
+                    while (getline(ss, token, ',')) {
+                        token.erase(remove_if(token.begin(), token.end(), ::isspace), token.end());
                         generos.push_back(token);
+                    }
                 }
                 case 3: {
                     // entrada duração mínima e máxima (considero sempre q o usuario quer um
@@ -119,15 +122,14 @@ public:
                     resultadoFinal = arquivoParaBusca.triagemFilmes.buscaCombinada(anoInicial, anoFinal, minutes,
                                                                                    tipos, generos, intervaloAno, intervaloAno);
 
-                    if (resultadoFinal.empty()) {
+                    if (resultadoFinal.empty())
                         cout << "Nenhum filme encontrado com os filtros aplicados." << endl;
-                    } else {
+                     else {
                         cout << "Filmes encontrados: " << endl;
                         int limit = resultadoFinal.size();
                         int codeId;
                         for( int i = 0; i < limit; i++) {
-                            codeId = resultadoFinal[i];
-                            Filme atual = arquivoParaBusca.getFilmePorId(codeId);
+                            Filme atual = arquivoParaBusca.getFilmePorId(resultadoFinal[i]);
                             cout << atual.getCodeId()<< " " << atual.getNamePrimary() << " " << atual.getNameOriginal();
                             cout << " " << atual.getStartYear() << " " << atual.getEndYear() << " ";
                             cout << atual.getRunTimeMinutes() << " " << atual.getType() << " " << atual.getGenres();

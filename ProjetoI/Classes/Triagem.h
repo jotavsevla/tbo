@@ -106,6 +106,7 @@ public:
         }
 
         // Filtragem por intervalo de anos
+
         if (intervaloTempo && runTimeMinutes.first > 0) {
             int tempo = runTimeMinutes.first;
             vector<int> filmesPorRunTime = buscaFilmesPorTempo(tempo);
@@ -121,15 +122,33 @@ public:
         }
 
         // Filtragem por tipo
-        for (const auto& tipo : types) {
-            vector<int> filmesPorType = buscaPorHashType(tipo);
-            results = buscaPorCodeIdsCommon(results, filmesPorType);
+        if (!types.empty()) {
+            vector<int> filmesPorType = buscaPorHashType(types[0]); // Inicializa com o primeiro tipo
+
+            for (size_t i = 1; i < types.size(); ++i) {
+                vector<int> buffer = buscaPorHashType(types[i]);
+                temp.clear();
+                merge(filmesPorType.begin(), filmesPorType.end(), buffer.begin(),
+                      buffer.end(), back_inserter(temp));
+                filmesPorType = temp; // Atualiza filmesPorType com o resultado da combinação
+            }
+
+            results = buscaPorCodeIdsCommon(results, filmesPorType); // Combina com os resultados existentes
         }
 
         // Filtragem por gênero
-        for (const auto& genero : genres) {
-            vector<int> filmesPorGenero = buscaPorHashGenres(genero);
-            results = buscaPorCodeIdsCommon(results, filmesPorGenero);
+        if (!genres.empty()) {
+            vector<int> filmesPorGenero = buscaPorHashGenres(genres[0]); // Inicializa com o primeiro gênero
+
+            for (size_t i = 1; i < genres.size(); ++i) {
+                vector<int> buffer = buscaPorHashGenres(genres[i]);
+                temp.clear();
+                merge(filmesPorGenero.begin(), filmesPorGenero.end(), buffer.begin(),
+                      buffer.end(), back_inserter(temp));
+                filmesPorGenero = temp; // Atualiza filmesPorGenero com o resultado da combinação
+            }
+
+            results = buscaPorCodeIdsCommon(results, filmesPorGenero); // Combina com os resultados existentes
         }
 
         return results;
