@@ -68,6 +68,8 @@ public:
                     string token;
                     while (getline(ss, token, ',')) {
                         token.erase(remove_if(token.begin(), token.end(), ::isspace), token.end());
+                        if (!token.empty() && isupper(token[0]))
+                            token[0] = tolower(token[0]);
                         tipos.push_back(token);
                     }
                     // não há break pois desejo continuar para o proximo
@@ -81,6 +83,8 @@ public:
                     string token;
                     while (getline(ss, token, ',')) {
                         token.erase(remove_if(token.begin(), token.end(), ::isspace), token.end());
+                        if (!token.empty() && islower(token[0]))
+                            token[0] = toupper(token[0]);
                         generos.push_back(token);
                     }
                 }

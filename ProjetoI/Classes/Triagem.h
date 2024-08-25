@@ -134,6 +134,7 @@ public:
             }
 
             results = buscaPorCodeIdsCommon(results, filmesPorType); // Combina com os resultados existentes
+
         }
 
         // Filtragem por gênero
