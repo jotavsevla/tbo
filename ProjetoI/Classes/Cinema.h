@@ -20,12 +20,12 @@ class Cinema {
 private :
     int codeId;
     string name;
-    vector<int> moviePosterId;
     pair <double,double> cordinate;
     int ticketValue;
+    vector<int> moviePosterId;
 
 public:
-    Cinema (int codeId, string name, vector<int> moviePosterId, pair<double,double> cordinate, int ticketValue);
+    Cinema (int codeId, string name, pair<double,double> cordinate, int ticketValue, vector<int> moviePosterId);
     int getCodeId() const { return codeId; }
     string getName() const { return name; }
     vector<int> getMoviePosterId() const { return moviePosterId; }

@@ -11,28 +11,31 @@
 #include "fstream"
 #include "chrono"
 #include "math.h"
-#define MAX 638834 // ultimo valor que a hashFilme() é capaz de gerar
+#define INICIAL 7917520
+#define MAX_FILME 638834 // ultimo valor que a hashFilme() é capaz de gerar
+#define MAX_MOVIE 450
 using namespace std;
 
 class Arquivo {
 public:
     vector<Filme> filmes;
     vector<Cinema> cinemas;
-    string arquivo;
+    string arquivoFilme, arquivoCinema;
     Triagem triagemFilmes;
 
-    Arquivo(const string& nomeArquivo) : arquivo(nomeArquivo) {}
+    Arquivo(const string& nomeArquivo1, const string& nomeArquivo2) :
+            arquivoFilme(nomeArquivo1), arquivoCinema(nomeArquivo2) {}
 
     Arquivo* lerArquivo() {
-        ifstream file(arquivo);
+        ifstream movieFile(arquivoFilme);
 
-        filmes.reserve(MAX);
+        filmes.reserve(MAX_FILME);
         string linha;
-        getline(file, linha); // Ignora a primeira linha (cabeçalho)
+        getline(movieFile, linha); // Ignora a primeira linha (cabeçalho)
         string t_const, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres;
 
         int i = 0;
-        while (getline(file, linha)) {
+        while (getline(movieFile, linha)) {
             try {
                 stringstream ss(linha);
                 getline(ss, t_const, '\t');
@@ -89,9 +92,12 @@ public:
                 return nullptr;
             }
         }
-        file.close();
+        movieFile.close();
+        ifstream cinemaFile(arquivoCinema);
+
         return this;
     }
+    int hashFilme(string t_const){ int codeId = stoi(t_const); codeId = (codeId - INICIAL) / 2; return codeId;}
     Filme getFilmePorId(int codeId){ return filmes[codeId];}
     Cinema getCinemaPorId(int codeId){ return cinemas[codeId];}
 };
