@@ -13,7 +13,7 @@
 #include "math.h"
 #define INICIAL 7917520
 #define MAX_FILME 638834 // ultimo valor que a hashFilme() é capaz de gerar
-#define MAX_MOVIE 450
+#define MAX_CINEMA 450
 using namespace std;
 
 class Arquivo {
@@ -93,11 +93,49 @@ public:
             }
         }
         movieFile.close();
+
         ifstream cinemaFile(arquivoCinema);
+        cinemas.reserve(MAX_CINEMA);
+        getline(cinemaFile, linha);
+        string bufferCinemaId, nomeCinema, bufferCordenadaX, bufferCoordenadaY, bufferTicketValue, bufferFilmesId;
+        vector<int> filmesId;
+        double ticketValue;
+        pair<double,double> coordenada;
+
+        int j =0;
+        while (getline(cinemaFile,linha)){
+            stringstream ss(linha);
+            getline(ss, bufferCinemaId,',');
+            getline(ss, nomeCinema, ',');
+            getline(ss, bufferCordenadaX, ',');
+            getline(ss, bufferCoordenadaY, ',');
+            getline(ss, bufferTicketValue,',');
+
+            filmesId.clear();
+            while (getline(ss,bufferFilmesId,',')){
+                int codeId = hashFilme(bufferFilmesId);
+                filmesId.push_back(codeId);
+            }
+
+            coordenada.first = stod(bufferCordenadaX);
+            coordenada.second = stod(bufferCoordenadaY);
+            ticketValue = stod(bufferTicketValue);
+
+            Cinema atual(j, nomeCinema, coordenada, ticketValue, filmesId);
+            cinemas.push_back(atual);
+
+            ++j;
+        }
+        cinemaFile.close();
 
         return this;
     }
-    int hashFilme(string t_const){ int codeId = stoi(t_const); codeId = (codeId - INICIAL) / 2; return codeId;}
+    int hashFilme(string t_const){
+        t_const = t_const.substr(3);
+        int codeId = stoi(t_const);
+        codeId = (codeId - INICIAL) / 2;
+        return codeId;
+    }
     Filme getFilmePorId(int codeId){ return filmes[codeId];}
     Cinema getCinemaPorId(int codeId){ return cinemas[codeId];}
 };

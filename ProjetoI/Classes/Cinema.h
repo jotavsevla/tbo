@@ -21,11 +21,12 @@ private :
     int codeId;
     string name;
     pair <double,double> cordinate;
-    int ticketValue;
+    double ticketValue;
     vector<int> moviePosterId;
 
 public:
-    Cinema (int codeId, string name, pair<double,double> cordinate, int ticketValue, vector<int> moviePosterId);
+    Cinema (int codeId, string name, pair<double,double> cordinate, double ticketValue, vector<int> moviePosterId):
+            codeId(codeId), name(name), cordinate(cordinate),ticketValue(ticketValue), moviePosterId(moviePosterId){}
     int getCodeId() const { return codeId; }
     string getName() const { return name; }
     vector<int> getMoviePosterId() const { return moviePosterId; }
