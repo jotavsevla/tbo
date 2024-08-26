@@ -9,7 +9,7 @@
 using namespace std;
 
 
-class Menu : Busca{
+class Menu {
 private:
     int escolha;
     //int duracoes[2] = {0, 0};

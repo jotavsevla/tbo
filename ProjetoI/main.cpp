@@ -4,8 +4,11 @@
 #define ARQUIVOCINEMAS "/Users/jotavsevla/CLionProjects/tbo_2024_01/ProjetoI/arquivosTexto/cinemas.txt"
 
 int main() {
-    Arquivo filmes(ARQUIVOFILME, ARQUIVOCINEMAS);
-    Menu menu(*filmes.lerArquivo());
+    Arquivo dataLoader(ARQUIVOFILME, ARQUIVOCINEMAS);
+    Menu menu(*dataLoader.lerArquivo());
     menu.principal();
+    dataLoader.filmes.clear();
+    dataLoader.cinemas.clear();
+    dataLoader.clearAll();
     return 0;
 }

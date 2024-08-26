@@ -8,11 +8,10 @@
 #include "Cinema.h"
 #define HASH_MAX 90000
 class HashFilmes{
-private:
+public:
     string chave;
     int qntAtualItens, lastViewed;
     vector<int> codeIdFilmes;
-public:
     HashFilmes(string chave) {
         this->chave = chave;
         codeIdFilmes.reserve(HASH_MAX);
@@ -31,7 +30,6 @@ public:
     }
     void setLastViewed(){this->lastViewed = 0;}
     string getChave(){return this->chave;}
-
 };
 
 

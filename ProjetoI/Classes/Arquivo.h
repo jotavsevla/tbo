@@ -136,6 +136,19 @@ public:
         codeId = (codeId - INICIAL) / 2;
         return codeId;
     }
+    bool clearAll(){
+        size_t limit = triagemFilmes.genresList.size();
+        for (size_t i = 0; i < limit; i++)
+            clearIn(triagemFilmes.genresList[i].codeIdFilmes);
+        triagemFilmes.genresList.clear();
+        limit = triagemFilmes.typeList.size();
+        for (size_t i = 0; i < limit; i++)
+            clearIn(triagemFilmes.typeList[i].codeIdFilmes);
+        triagemFilmes.typeList.clear();
+    }
+    void clearIn(vector<int> discardList){
+        discardList.clear();
+    }
     Filme getFilmePorId(int codeId){ return filmes[codeId];}
     Cinema getCinemaPorId(int codeId){ return cinemas[codeId];}
 };
