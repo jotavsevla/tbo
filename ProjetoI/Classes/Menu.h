@@ -24,7 +24,7 @@ private:
 public:
     Menu(Arquivo& arquivo):arquivoParaBusca(arquivo){}
     void principal() {
-        cout << "### MENU PRINCPAL ###" << endl << endl;
+        cout << endl << "### MENU PRINCPAL ###" << endl << endl;
         cout << "1 - Filmes" << endl;
         cout << "2 - Cinemas" << endl << endl;
         cout << "Escolha: ";
@@ -134,7 +134,7 @@ public:
                         int codeId;
                         for( int i = 0; i < limit; i++) {
                             Filme atual = arquivoParaBusca.getFilmePorId(resultadoFinal[i]);
-                            cout << atual.getCodeId()<< " " << atual.getNamePrimary() << " " << atual.getNameOriginal();
+                            cout << atual.getCodeId()<< " (" << atual.getNamePrimary() << ") " << atual.getNameOriginal();
                             cout << " " << atual.getStartYear() << " " << atual.getEndYear() << " ";
                             cout << atual.getRunTimeMinutes() << " " << atual.getType() << " " << atual.getGenres();
                             cout << endl;
