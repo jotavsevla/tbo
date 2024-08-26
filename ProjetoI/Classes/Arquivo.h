@@ -96,7 +96,7 @@ public:
 
         ifstream cinemaFile(arquivoCinema);
         cinemas.reserve(MAX_CINEMA);
-        getline(cinemaFile, linha);
+        getline(cinemaFile, linha); // ignora cabeçalho dos cinemas
         string bufferCinemaId, nomeCinema, bufferCordenadaX, bufferCoordenadaY, bufferTicketValue, bufferFilmesId;
         vector<int> filmesId;
         double ticketValue;

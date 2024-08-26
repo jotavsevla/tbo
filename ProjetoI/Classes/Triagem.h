@@ -84,6 +84,7 @@ public:
         vector<int> results;
         vector<int> temp, buffer;
 
+        // Filtragem por intervalo de anos
         if (intervaloAno && startYear > 0 && endYear > 0) {
             int ano = startYear;
             vector<int> filmesPorAno = buscaFilmesPorAno(ano);
@@ -105,7 +106,6 @@ public:
             results = filmesPorAno;
         }
 
-        // Filtragem por intervalo de anos
 
         if (intervaloTempo && runTimeMinutes.first > 0) {
             int tempo = runTimeMinutes.first;

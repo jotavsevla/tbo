@@ -107,7 +107,7 @@ public:
                             intervaloAno =  true;
                             cout << "Digite o ano inicial: " ;
                             cin >> anoInicial;
-                            cout << endl << "Digite o ano final do intervalo: ";
+                            cout << "Digite o ano final do intervalo: ";
                             cin >> anoFinal;
                             break;
                         }
