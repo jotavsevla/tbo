@@ -3,34 +3,23 @@
 #include <string>
 #include <vector>
 #include <regex> // Para usar expressões regulares
+// valor maximo arbitrário
 #define MAX 10000000
 #define DICIONARIO "/Users/jotavsevla/CLionProjects/tbo_2024_01/ProjetoII/arquivoTexto/Dicionário pt_BR.dic"
 using namespace std;
-// estruturas
-struct TrieNode {
-    TrieNode* children[256]; // Assumindo um alfabeto de 256 caracteres
-    bool isAccepting;
-    TrieNode() {
-        for (int i = 0; i < 256; ++i)
-            children[i] = nullptr;
-        isAccepting = false;
-    }
-};
 
-//  cabeçalhos
-// Função para ler o arquivo
+//  cabeçalhos das funções
 string* lerArquivo (const string& index);
-void kmp(string texto, string padrao);
-// Função para criar a tabela de falhas do KMP
-vector<int> criarTabelaFalha(const string& padrao);
-void kmp_wildcard(const string& text, const string& pattern, TrieNode* root);
-TrieNode* criarTabelhaFalhaWildCard(const string& pattern);
-// Função para remover caracteres especiais e sufixos após as barras
 string limparPalavra(const string& palavra);
-string getPattern();
-string capturarPalavra(const string& texto, int inicio, int fim);
+vector<int> criarTabelaFalha(const string& padrao);
+bool correspondeComWildcard(const string& texto, const string& pattern, size_t pos_texto);
+void kmp_wildcard(const string& text, const string& pattern);
+void kmp(string texto, string padrao);
 bool isDelimiter(char c);
+string getPattern();
+string capturaPalavra(const string& texto, size_t inicio, size_t tamanho_padrao);
 
+// funções
 string* lerArquivo (const string& index){
     ifstream arquivo(index);
     auto * texto = new string();
@@ -56,9 +45,55 @@ string limparPalavra(const string& palavra) {
     return limpa;
 }
 
+void kmp_wildcard(const string& texto, const string& pattern) {
+    size_t n = texto.size();
+    for (size_t i = 0; i < n; ++i) {
+        if (correspondeComWildcard(texto, pattern, i)) {
+            string palavraCompleta = capturaPalavra(texto, i, pattern.size());
+            cout << "Padrão encontrado na posição: " << i << " | Palavra completa: " << palavraCompleta << endl;
+        }
+    }
+}
+bool correspondeComWildcard(const string& texto, const string& pattern, size_t pos_texto) {
+    size_t n = texto.size();
+    size_t m = pattern.size();
 
+    size_t i = pos_texto;
+    size_t j = 0;
+
+    while (i < n && j < m) {
+        if (pattern[j] == '*') {
+            // Ignora caracteres consecutivos '*' no padrão
+            while (j < m && pattern[j] == '*') {
+                j++;
+            }
+            // Se '*' for o último caractere, qualquer sequência restante é válida
+            if (j == m) {
+                return true;
+            }
+            // Tenta avançar no texto até encontrar a próxima correspondência
+            while (i < n && texto[i] != pattern[j]) {
+                i++;
+            }
+        } else if (pattern[j] == texto[i]) {
+            // Correspondência exata
+            i++;
+            j++;
+        } else {
+            // Se não houver correspondência, retorna falso
+            return false;
+        }
+    }
+
+    // Verifica se todo o padrão foi processado
+    while (j < m && pattern[j] == '*') {
+        j++; // Ignorar qualquer '*' restante no final do padrão
+    }
+
+    return j == m;
+}
 vector<int> criarTabelaFalha(const string& padrao) {
-    int m = padrao.size();
+    size_t m = padrao.size();
     vector<int> falha(m, 0);
     int j = 0;
 
@@ -73,59 +108,15 @@ vector<int> criarTabelaFalha(const string& padrao) {
             }
         }
     }
+
     return falha;
-}
-TrieNode* criarTabelhaFalhaWildCard(const string& pattern) {
-    TrieNode* root = new TrieNode();
-    TrieNode* currentNode = root;
 
-    for (int i = 0; i < pattern.size(); ++i) {
-        char c = pattern[i];
-        if (c == '*') {
-            currentNode->isAccepting = true;
-        } else {
-            if (currentNode->children[c] == nullptr) {
-                currentNode->children[c] = new TrieNode();
-            }
-            currentNode = currentNode->children[c];
-        }
-        if (i == pattern.size() - 1) {
-            currentNode->isAccepting = true;
-        }
-    }
-
-    return root;
 }
 
-void kmp_wildcard(const string& text, const string& pattern, TrieNode* root) {
-    int n = text.size();
-    int m = pattern.size();
-    TrieNode* currentNode = root;
-
-    for (int i = 0; i < n; ++i) {
-        char c = text[i];
-        while (currentNode != root && currentNode->children[c] == nullptr) {
-            currentNode = root;
-        }
-
-        if (currentNode->children[c] != nullptr) {
-            currentNode = currentNode->children[c];
-        } else if (currentNode->children['*'] != nullptr) {
-            currentNode = currentNode->children['*'];
-        }
-
-        if (currentNode->isAccepting) {
-            int pos = i - m + 1;
-            string palavraCompleta = capturarPalavra(text, pos, pos + m);
-            cout << "Padrão encontrado na posição: " << pos << " | Palavra completa: " << palavraCompleta << endl;
-            currentNode = root;
-        }
-    }
-}
 void kmp(string texto, string padrao) {
 // Função KMP para buscar o padrão no texto e imprimir todas as ocorrências
-    int n = texto.size();
-    int m = padrao.size();
+    size_t n = texto.size();
+    size_t m = padrao.size();
 
     vector<int> falha = criarTabelaFalha(padrao);
     int i = 0; // Índice do texto
@@ -142,7 +133,7 @@ void kmp(string texto, string padrao) {
             // Encontrou o padrão
             found = true;
             int pos = i - j;
-            string palavraCompleta = capturarPalavra(texto, pos, pos + m);
+            string palavraCompleta = capturaPalavra(texto, pos, m);
             cout << "Padrão encontrado na posição: " << pos << " | Palavra completa: " << palavraCompleta << endl;
             j = falha[j - 1];
         } else if (i < n && padrao[j] != texto[i]) {
@@ -157,76 +148,62 @@ void kmp(string texto, string padrao) {
         cout << "Padrão não encontrado no texto." << endl;
     }
 }
+
 // Função para determinar se o caractere é um delimitador (espaço, nova linha, etc.)
 bool isDelimiter(char c) {
     // Adiciono mais delimitadores conforme necessário
     return c == ' ' || c == '\n' || c == '\t' || c == '\r' || c == '.' || c == ',';
 }
-
-void liberarTrie(TrieNode* root) {
-    if (root == nullptr) {
-        return;
-    }
-
-    for (int i = 0; i < 256; ++i) {
-        if (root->children[i] != nullptr) {
-            liberarTrie(root->children[i]);
-        }
-    }
-
-    delete root;
-}
 // Função para capturar a palavra completa em torno do padrão encontrado
-string capturarPalavra(const string& texto, int inicio, int fim) {
+string capturaPalavra(const string& texto, size_t inicio, size_t tamanho_padrao) {
     // Encontrar início da palavra anterior ao padrão
-    int start = inicio;
+    size_t start = inicio;
     while (start > 0 && !isDelimiter(texto[start - 1]))
         start--;
 
-
     // Encontrar fim da palavra após o padrão
-    int end = fim;
+    size_t end = inicio + tamanho_padrao;
     while (end < texto.size() && !isDelimiter(texto[end]))
         end++;
 
     // Retornar a palavra completa extraída
     return texto.substr(start, end - start);
 }
-
-
-
-// Função para capturar o padrão
 string getPattern(){
-    string padrao;
-    cout << "Informe o padrão a ser buscado: ";
-    cin >> padrao;
-    return padrao;
-}
 
+    string padrao;
+    cout << "Informe o padrão a ser buscado (ou 'sair' para encerrar): ";
+    cin >> padrao;
+
+    return padrao;
+
+}
 
 int main() {
     // Ler o arquivo e realizar a busca pelo padrão
     string* texto = lerArquivo(DICIONARIO);
+    string pattern;
 
     while (true) {
-        string padrao;
-        cout << "Informe o padrão a ser buscado (ou 'sair' para encerrar): ";
-        cin >> padrao;
 
-        if (padrao == "sair")
+        pattern = getPattern();
+
+        if (pattern == "sair")
             break;
 
         // Verifica se o padrão contém o caractere wildcard
-        bool hasWildcard = padrao.find('*') != string::npos;
-
-        if (hasWildcard) {
-            TrieNode* root = criarTabelhaFalhaWildCard(padrao);
-            kmp_wildcard(*texto, padrao, root);
-            liberarTrie(root);
-        } else
-            kmp(*texto, padrao);
-
+        if (pattern.find('*') != string::npos)
+            kmp_wildcard(*texto, pattern);
+        else
+            kmp(*texto, pattern);
     }
 
+    delete[] texto;
+
     return 0;
+
 }
+
+
+
+
