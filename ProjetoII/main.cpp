@@ -140,8 +140,8 @@ bool kmp(const string& texto, string padrao) {
     size_t n = texto.size();
     size_t m = padrao.size();
     vector<int> falha = criarTabelaFalha(padrao);
-    int i = 0; // Índice do texto
-    int j = 0; // Índice do padrão
+    size_t i = 0; // Índice do texto
+    size_t j = 0; // Índice do padrão
     bool found = false; // Variável para verificar se o padrão foi encontrado
     while (i < n) {
         if (padrao[j] == texto[i]) {
@@ -182,68 +182,4 @@ string getPattern(){
     cout << "Informe o padrão a ser buscado (ou 'sair' para encerrar): ";
     cin >> padrao;
     return padrao;
-}
-string removeLetter(string word, char letter) {
-    string result = "";
-    for (char c : word) {
-        if (c != letter) {
-            result += c;
-        }
-    }
-    return result;
-}
-
-// Função auxiliar para inserir uma letra em uma string
-string insertLetter(string word, int index, char letter) {
-    string result = word;
-    result.insert(index, 1, letter);
-    return result;
-}
-void encontrarPalavrasSimilares(const string& palavra, const string& dicionario) {
-
-    // Regra 1: Palavra com R intermediário
-    if (palavra.find('R') != string::npos && palavra.find_first_of("R") != 0 &&
-            palavra.find_last_not_of("R") != palavra.length() - 1) {
-        string novaPalavra = insertLetter(palavra, palavra.find('R'), 'R');
-        kmp(novaPalavra, dicionario);
-    }
-
-
-    // Regra 2: Duas vogais seguidas (exceto "io" e "ia")
-    if (palavra.length() >= 3 && (palavra.substr(0, 2) != "io" || palavra.substr(0, 2) != "ia")) {
-        for (int i = 0; i < palavra.length() - 1; i++) {
-            if (isVogal(palavra[i]) && isVogal(palavra[i+1])) {
-                string copia1 = removeLetter(palavra, palavra[i]);
-                string copia2 = removeLetter(palavra, palavra[i+1]);
-
-                kmp(copia1, dicionario);
-                kmp(copia2, dicionario);
-            }
-        }
-    }
-
-    // Regra 3: Duas consoantes seguidas (exceto "mp" e "mb")
-    if (palavra.length() >= 3 && (palavra.substr(0, 2) != "mp" || palavra.substr(0, 2) != "mb")) {
-        for (size_t i = 0; i < palavra.length() - 1; i++) {
-            if (!isConsoante(palavra[i]) || !isConsoante(palavra[i+1])) continue;
-
-            string copia1 = removeLetter(palavra, palavra[i]);
-            string copia2 = removeLetter(palavra, palavra[i+1]);
-            string copia3 = removeLetter(palavra, palavra[i]) + "*" + removeLetter(palavra, palavra[i+1]);
-
-            kmp(copia1, dicionario);
-            kmp(copia2, dicionario);
-            kmp(copia3, dicionario);
-        }
-    }
-}
-
-// Funções auxiliares para verificar se um caractere é vogal ou consoante
-bool isVogal(char c) {
-    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' ||
-            c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U');
-}
-
-bool isConsoante(char c) {
-    return !isVogal(c);
 }
