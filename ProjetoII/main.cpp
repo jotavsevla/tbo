@@ -1,15 +1,24 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <regex>
-#include <sstream>
+#include <algorithm>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <regex>
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include <sstream>
 
 #define MAX 10000000
 #define DICIONARIO "/Users/jotavsevla/CLionProjects/tbo_2024_01/ProjetoII/arquivoTexto/Dicionário pt_BR.dic"
 
 using namespace std;
+
+// Estrutura para comparar distâncias entre palavras
+struct ComparadorDistancia {
+    bool operator()(const pair<string, int>& a, const pair<string, int>& b) {
+        return a.second < b.second;
+    }
+};
 
 // Protótipos das funções
 string* lerArquivo(const string& index);
@@ -21,24 +30,27 @@ bool kmp(const string& texto, const string& padrao);
 bool isDelimiter(char c);
 string getPattern();
 string capturaPalavra(const string& texto, size_t inicio, size_t tamanho_padrao);
-void encontrarPalavrasSimilares(const string& palavra, const string& dicionario);
 bool isVogal(char c);
 bool comWildcard(const string& pattern);
-bool isConsoante(char c);
-string removeLetter(string word, int index);
-string insertLetter(string word, int index, char letter);
-void buscarComRSAdicional(const string& palavra, const string& dicionario);
+unordered_map<char, vector<string> > indexarDicionario(const string& dicionario);
+void encontrarPalavrasSimilares(const string& palavra, const unordered_map<char, vector<string> >& indice);
+void buscarComRSAdicional(const string& palavra, const unordered_map<char, vector<string> >& indice);
 
+// Função principal
 int main() {
+    // Lê o arquivo do dicionário
     string* texto = lerArquivo(DICIONARIO);
     if (texto == nullptr) {
         cerr << "Erro ao ler o arquivo do dicionário. Encerrando o programa." << endl;
         return 1;
     }
+    // Indexa o dicionário para busca rápida
+    unordered_map<char, vector<string> > indice = indexarDicionario(*texto);
 
     string pattern;
     char modo;
 
+    // Loop principal do programa
     while (true) {
         cout << "Escolha o modo de busca:" << endl;
         cout << "1 - Buscar palavra no dicionário" << endl;
@@ -57,14 +69,16 @@ int main() {
         if (pattern == "sair") break;
 
         if (modo == '1') {
+            // Busca exata no dicionário
             bool encontrouPadrao = comWildcard(pattern) ? kmp_wildcard(*texto, pattern) : kmp(*texto, pattern);
             if (!encontrouPadrao) {
                 cout << "Palavra não encontrada no dicionário." << endl;
             }
         } else {
+            // Busca sugestões para palavras erradas
             cout << "Buscando sugestões para a palavra..." << endl;
-            encontrarPalavrasSimilares(pattern, *texto);
-            buscarComRSAdicional(pattern, *texto);
+            encontrarPalavrasSimilares(pattern, indice);
+            buscarComRSAdicional(pattern, indice);
         }
     }
 
@@ -72,6 +86,7 @@ int main() {
     return 0;
 }
 
+// Lê o conteúdo do arquivo de dicionário
 string* lerArquivo(const string& index) {
     ifstream arquivo(index);
     if (!arquivo.is_open()) {
@@ -89,6 +104,7 @@ string* lerArquivo(const string& index) {
     return texto;
 }
 
+// Remove caracteres indesejados e informações adicionais das palavras
 string limparPalavra(const string& palavra) {
     size_t posBarra = palavra.find('/');
     string limpa = (posBarra != string::npos) ? palavra.substr(0, posBarra) : palavra;
@@ -96,6 +112,7 @@ string limparPalavra(const string& palavra) {
     return limpa;
 }
 
+// Implementa o algoritmo KMP com suporte a wildcards
 bool kmp_wildcard(const string& texto, const string& pattern) {
     size_t n = texto.size();
     bool found = false;
@@ -109,6 +126,7 @@ bool kmp_wildcard(const string& texto, const string& pattern) {
     return found;
 }
 
+// Verifica se um padrão com wildcard corresponde a uma posição no texto
 bool correspondeComWildcard(const string& texto, const string& pattern, size_t pos_texto) {
     size_t n = texto.size();
     size_t m = pattern.size();
@@ -126,6 +144,7 @@ bool correspondeComWildcard(const string& texto, const string& pattern, size_t p
     return j == m;
 }
 
+// Cria a tabela de falha para o algoritmo KMP
 vector<int> criarTabelaFalha(const string& padrao) {
     size_t m = padrao.size();
     vector<int> falha(m, 0);
@@ -142,6 +161,7 @@ vector<int> criarTabelaFalha(const string& padrao) {
     return falha;
 }
 
+// Implementa o algoritmo KMP para busca de padrões
 bool kmp(const string& texto, const string& padrao) {
     size_t n = texto.size();
     size_t m = padrao.size();
@@ -160,17 +180,21 @@ bool kmp(const string& texto, const string& padrao) {
             found = true;
             j = falha[j - 1];
         } else if (i < n && padrao[j] != texto[i]) {
-            if (j != 0) j = falha[j - 1];
-            else i++;
+            if (j != 0)
+                j = falha[j - 1];
+            else
+                i++;
         }
     }
     return found;
 }
 
+// Verifica se um caractere é um delimitador
 bool isDelimiter(char c) {
     return c == ' ' || c == '\n' || c == '\t' || c == '\r' || c == '.' || c == ',';
 }
 
+// Captura uma palavra completa do texto dado um início e um tamanho de padrão
 string capturaPalavra(const string& texto, size_t inicio, size_t tamanho_padrao) {
     size_t start = inicio;
     while (start > 0 && !isDelimiter(texto[start - 1])) start--;
@@ -179,6 +203,7 @@ string capturaPalavra(const string& texto, size_t inicio, size_t tamanho_padrao)
     return texto.substr(start, end - start);
 }
 
+// Obtém o padrão de busca do usuário
 string getPattern() {
     string padrao;
     cout << "Informe o padrão a ser buscado (ou 'sair' para encerrar): ";
@@ -186,88 +211,136 @@ string getPattern() {
     return padrao;
 }
 
+// Verifica se um caractere é uma vogal
 bool isVogal(char c) {
     static const string vogais = "aeiouAEIOU";
     return vogais.find(c) != string::npos;
 }
 
+// Verifica se um caractere é uma consoante
 bool isConsoante(char c) {
     return isalpha(c) && !isVogal(c);
 }
 
+// Verifica se o padrão contém wildcards
 bool comWildcard(const string& pattern) {
     return pattern.find('*') != string::npos;
 }
 
+// Remove uma letra de uma palavra
 string removeLetter(string word, int index) {
     return word.erase(index, 1);
 }
 
+// Insere uma letra em uma palavra
 string insertLetter(string word, int index, char letter) {
     return word.insert(index, 1, letter);
 }
 
-void encontrarPalavrasSimilares(const string& palavra, const string& dicionario) {
-    vector<string> sugestoes;
-    istringstream iss(dicionario);
-    string palavra_dic;
+// Calcula a distância de Levenshtein entre duas strings
+int distanciaLevenshtein(const string& s1, const string& s2) {
+    const size_t len1 = s1.size(), len2 = s2.size();
+    vector<vector<int> > d(len1 + 1, vector<int>(len2 + 1));
 
-    while (iss >> palavra_dic) {
-        if (abs((int)palavra.length() - (int)palavra_dic.length()) <= 1) {
-            int distancia = 0;
-            for (size_t i = 0; i < max(palavra.length(), palavra_dic.length()); ++i) {
-                if (i >= palavra.length() || i >= palavra_dic.length() || palavra[i] != palavra_dic[i]) {
-                    distancia++;
-                }
-                if (distancia > 1) break;
-            }
-            if (distancia <= 1) {
-                sugestoes.push_back(palavra_dic);
+    for (int i = 0; i <= len1; ++i)
+        d[i][0] = i;
+    for (int j = 0; j <= len2; ++j)
+        d[0][j] = j;
+
+    for (int i = 1; i <= len1; ++i)
+        for (int j = 1; j <= len2; ++j) {
+            int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
+            d[i][j] = min(min(d[i - 1][j] + 1, d[i][j - 1] + 1), d[i - 1][j - 1] + cost);
+        }
+
+    return d[len1][len2];
+}
+
+// Encontra palavras similares no dicionário usando a distância de Levenshtein
+void encontrarPalavrasSimilares(const string& palavra, const unordered_map<char, vector<string> >& indice) {
+    vector<pair<string, int> > sugestoes;
+    char inicial = tolower(palavra[0]);
+
+    auto it = indice.find(inicial);
+    if (it != indice.end()) {
+        for (const auto& palavra_dic : it->second) {
+            int distancia = distanciaLevenshtein(palavra, palavra_dic);
+            if (distancia <= 2) {
+                sugestoes.push_back(make_pair(palavra_dic, distancia));
             }
         }
     }
 
+    // Ordena as sugestões pela distância de Levenshtein
+    sort(sugestoes.begin(), sugestoes.end(),
+         ComparadorDistancia());
+
     if (!sugestoes.empty()) {
         cout << "Sugestões de palavras similares:" << endl;
-        for (const auto& sugestao : sugestoes) {
-            cout << "- " << sugestao << endl;
+        for (size_t i = 0; i < sugestoes.size(); ++i) {
+            cout << "- " << sugestoes[i].first << " (distância: " << sugestoes[i].second << ")" << endl;
         }
     } else {
         cout << "Nenhuma sugestão encontrada." << endl;
     }
 }
 
-void buscarComRSAdicional(const string& palavra, const string& dicionario) {
-    vector<string> sugestoes;
-    istringstream iss(dicionario);
-    string palavra_dic;
+// Busca palavras com R/S adicional ou substituído
+void buscarComRSAdicional(const string& palavra, const unordered_map<char, vector<string> >& indice) {
+    vector<string> sugestoes_adicionais;
 
-    vector<string> variantes_palavra;
-    variantes_palavra.push_back(palavra);
+    // Geração das variantes com R/S adicional ou substituído
+    for (size_t i = 0; i <= palavra.length(); ++i) {
+        // Adicionar 'r' ou 's'
+        string nova_r = palavra;
+        nova_r.insert(i, 1, 'r');
+        sugestoes_adicionais.push_back(nova_r);
 
-    for (size_t i = 1; i < palavra.length() - 1; ++i) {
-        if (palavra[i] == 'r' || palavra[i] == 'R' || palavra[i] == 's' || palavra[i] == 'S') {
-            string nova = palavra;
-            nova.insert(i + 1, 1, palavra[i]);
-            variantes_palavra.push_back(nova);
+        string nova_s = palavra;
+        nova_s.insert(i, 1, 's');
+        sugestoes_adicionais.push_back(nova_s);
+
+        // Substituir por 'r' ou 's'
+        if (i < palavra.length()) {
+            nova_r = palavra;
+            nova_r[i] = 'r';
+            sugestoes_adicionais.push_back(nova_r);
+
+            nova_s = palavra;
+            nova_s[i] = 's';
+            sugestoes_adicionais.push_back(nova_s);
         }
     }
 
-    while (iss >> palavra_dic) {
-        for (const auto& variante : variantes_palavra) {
-            if (variante == palavra_dic) {
-                sugestoes.push_back(palavra_dic);
-                break;
+    bool encontrou_sugestao = false;
+    for (const auto& sugestao : sugestoes_adicionais) {
+        char inicial = tolower(sugestao[0]);
+        auto it = indice.find(inicial);
+        if (it != indice.end()) {
+            for (const auto& palavra_dic : it->second) {
+                if (palavra_dic == sugestao) {
+                    cout << "Sugestão encontrada: " << palavra_dic << endl;
+                    encontrou_sugestao = true;
+                }
             }
         }
     }
 
-    if (!sugestoes.empty()) {
-        cout << "Sugestões de palavras com R/S adicional:" << endl;
-        for (const auto& sugestao : sugestoes) {
-            cout << "- " << sugestao << endl;
-        }
-    } else {
-        cout << "Nenhuma sugestão encontrada com R/S adicional." << endl;
+    if (!encontrou_sugestao) {
+        cout << "Nenhuma sugestão encontrada com R/S adicional ou substituído." << endl;
     }
+}
+
+// Indexa o dicionário para busca rápida
+unordered_map<char, vector<string> > indexarDicionario(const string& dicionario) {
+    unordered_map<char, vector<string> > indice;
+    istringstream iss(dicionario);
+    string palavra;
+
+    while (iss >> palavra) {
+        char inicial = tolower(palavra[0]);
+        indice[inicial].push_back(palavra);
+    }
+
+    return indice;
 }
