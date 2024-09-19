@@ -35,6 +35,8 @@ bool com_wildcard(const string& pattern);
 unordered_map<char, vector<string> > indexar_dicionario(const string& dicionario);
 void encontrar_palavras_similares(const string& palavra, const unordered_map<char, vector<string> >& indice);
 void encontrar_palavras_RS_adicional(const string& palavra, const unordered_map<char, vector<string> >& indice);
+void encontrar_palavras_SC_adicional(const string& palavra, const unordered_map<char, vector<string> >& indice);
+void encontrar_palavras_PB_usamos_M(const string& palavra, const unordered_map<char, vector<string> >& indice);
 
 // Função principal
 int main() {
@@ -79,6 +81,8 @@ int main() {
             cout << "Buscando sugestões para a palavra..." << endl;
             encontrar_palavras_similares(pattern, indice);
             encontrar_palavras_RS_adicional(pattern, indice);
+            encontrar_palavras_SC_adicional(pattern, indice);
+            encontrar_palavras_PB_usamos_M(pattern, indice);
         }
     }
 
@@ -328,6 +332,73 @@ void encontrar_palavras_RS_adicional(const string& palavra, const unordered_map<
 
     if (!encontrou_sugestao) {
         cout << "Nenhuma sugestão encontrada com R/S adicional ou substituído." << endl;
+    }
+}
+// Busca palavras com SC adicional
+void encontrar_palavras_SC_adicional(const string& palavra, const unordered_map<char, vector<string> >& indice) {
+    vector<string> sugestoes_adicionais;
+
+    // Geração das variantes com SC adicional
+    for (size_t i = 0; i < palavra.length(); ++i) {
+        if (palavra[i] == 's' && (i == palavra.length() - 1 || palavra[i + 1] != 'c')) {
+            string nova = palavra;
+            nova.insert(i + 1, 1, 'c');
+            sugestoes_adicionais.push_back(nova);
+        } else if (palavra[i] == 'c' && (i == 0 || palavra[i - 1] != 's')) {
+            string nova = palavra;
+            nova.insert(i, 1, 's');
+            sugestoes_adicionais.push_back(nova);
+        }
+    }
+
+    bool encontrou_sugestao = false;
+    for (const auto& sugestao : sugestoes_adicionais) {
+        char inicial = tolower(sugestao[0]);
+        auto it = indice.find(inicial);
+        if (it != indice.end()) {
+            for (const auto& palavra_dic : it->second) {
+                if (palavra_dic == sugestao) {
+                    cout << "Sugestão SC encontrada: " << palavra_dic << endl;
+                    encontrou_sugestao = true;
+                }
+            }
+        }
+    }
+
+    if (!encontrou_sugestao) {
+        cout << "Nenhuma sugestão encontrada com SC adicional." << endl;
+    }
+}
+
+// Busca palavras com M antes de P e B
+void encontrar_palavras_PB_usamos_M(const string& palavra, const unordered_map<char, vector<string> >& indice) {
+    vector<string> sugestoes_adicionais;
+
+    // Geração das variantes com M antes de P e B
+    for (size_t i = 0; i < palavra.length() - 1; ++i) {
+        if (palavra[i] == 'n' && (palavra[i + 1] == 'p' || palavra[i + 1] == 'b')) {
+            string nova = palavra;
+            nova[i] = 'm';
+            sugestoes_adicionais.push_back(nova);
+        }
+    }
+
+    bool encontrou_sugestao = false;
+    for (const auto& sugestao : sugestoes_adicionais) {
+        char inicial = tolower(sugestao[0]);
+        auto it = indice.find(inicial);
+        if (it != indice.end()) {
+            for (const auto& palavra_dic : it->second) {
+                if (palavra_dic == sugestao) {
+                    cout << "Sugestão M antes de P/B encontrada: " << palavra_dic << endl;
+                    encontrou_sugestao = true;
+                }
+            }
+        }
+    }
+
+    if (!encontrou_sugestao) {
+        cout << "Nenhuma sugestão encontrada com M antes de P e B." << endl;
     }
 }
 
