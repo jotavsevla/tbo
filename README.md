@@ -22,7 +22,7 @@ Sistema completo para busca e filtragem de filmes e cinemas utilizando estrutura
 ### Características
 
 - **Estruturas de dados implementadas:**
-  - Árvore Rubro-Negra (Red-Black Tree) para busca eficiente por ano
+  - Árvore p/ busca eficiente por ano
   - Tabela Hash para acesso rápido
   - Sistema de triagem de filmes
 
@@ -42,7 +42,7 @@ Sistema completo para busca e filtragem de filmes e cinemas utilizando estrutura
 - `main.cpp`: Ponto de entrada do programa
 - `Classes/Menu.h`: Interface de menu para interação com o usuário
 - `Classes/Arquivo.h`: Carregamento e gerenciamento de dados
-- `Classes/RedBlackTree.h`: Implementação da árvore rubro-negra
+- `Classes/RedBlackTree.h`: Implementação da árvore 
 - `Classes/TabelaHash.h`: Implementação da tabela hash
 - `Classes/Triagem.h`: Sistema de triagem e filtragem
 - `Classes/Filme.h`: Classe para representar filmes
@@ -261,7 +261,7 @@ pip install matplotlib numpy
 
 ## Estruturas de Dados Utilizadas no Repositório
 
-### Árvore Rubro-Negra (Red-Black Tree)
+### Árvore  (Red-Black Tree)
 
 - **Projeto:** ProjetoI
 - **Uso:** Indexação de filmes por ano
