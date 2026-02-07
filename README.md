@@ -261,7 +261,7 @@ pip install matplotlib numpy
 
 ## Estruturas de Dados Utilizadas no Repositório
 
-### Árvore  (Red-Black Tree)
+### Árvore
 
 - **Projeto:** ProjetoI
 - **Uso:** Indexação de filmes por ano
@@ -377,7 +377,7 @@ Consulte a seção específica de cada projeto acima para instruções de compil
 
 ### Estruturas de Dados
 
-- Árvores balanceadas (Red-Black Tree)
+- Árvores balanceadas 
 - Tabelas hash e funções de dispersão
 - Listas estáticas, ligadas e duplamente ligadas
 - Trade-offs entre diferentes implementações
